@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "81980637463",
+    "project_id": "miwuki-dd78a",
+    "storage_bucket": "miwuki-dd78a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:81980637463:android:90e4b7c7bd745b77e33752",
+        "android_client_info": {
+          "package_name": "com.miwuki"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "81980637463-3bmpuetar1glc80vafml02961gu3v42q.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.miwuki",
+            "certificate_hash": "10df169f21920ca07d76e544abc727c487990771"
+          }
+        },
+        {
+          "client_id": "81980637463-hsl4f2u6uhmm8tuki22gl8c581f389ej.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGvqv0Oi6TXXJsEA3VYC1LvFD5JBesJT8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "81980637463-hsl4f2u6uhmm8tuki22gl8c581f389ej.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -3,7 +3,7 @@ import { Text, View, TouchableOpacity, Modal, StyleSheet, Image, ScrollView, Tex
 import { getFirestore, doc, getDocs, collection, addDoc,getDoc,updateDoc } from 'firebase/firestore';
 
 
-import appFirebase from './credenciales';
+import appFirebase from './Componets/Firebase/credenciales';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import LinearGradient from 'react-native-linear-gradient';

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Text, View, TouchableOpacity, Modal, StyleSheet, Image, TextInput,ScrollView, Alert } from 'react-native';
 import { getFirestore, doc, getDoc, updateDoc, serverTimestamp} from 'firebase/firestore';
-import appFirebase from './credenciales';
+import appFirebase from './Componets/Firebase/credenciales';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';

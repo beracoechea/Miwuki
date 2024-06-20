@@ -1,51 +1,61 @@
+// Signup.js
 import React, { useState } from 'react';
 import { Text, TouchableOpacity, View, TextInput, StyleSheet } from 'react-native';
-import appFirebase from './credenciales';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
-const firebaseAuth = getAuth(appFirebase, {
-  persistence: 'local',
-  dataConverter: null
-});
-
+import Alerts, { ALERT_TYPES } from '../Alerts/Alerts'; // Ajusta la ruta según sea necesario
+import { loginWithEmailAndPassword } from '../Firebase/firebase'; // Importamos la función de login
 
 export default function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [alert, setAlert] = useState({ type: null, message: '' }); // Estado para la alerta
   const navigation = useNavigation();
 
   const handleEmailChange = (text) => {
     setEmail(text);
   };
 
-  const toggleShowPassword = () => {
-    setShowPassword(!showPassword); 
-  };
-
   const handlePasswordChange = (text) => {
     setPassword(text);
   };
 
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
   const handleLogin = async () => {
     if (!email || !password) {
-      alert('Por favor ingrese un correo electrónico y una contraseña válidos.');
+      setAlert({ type: ALERT_TYPES.ERROR, message: 'Por favor ingrese un correo electrónico y una contraseña válidos.' });
+      resetAlert();
       return;
     }
-  
+
     try {
       // Intenta iniciar sesión con las credenciales proporcionadas
-      await signInWithEmailAndPassword(firebaseAuth, email, password);
-      
+      await loginWithEmailAndPassword(email, password);
+
       // Si la autenticación es exitosa, navega a la pantalla de inicio
       navigation.navigate('Menu', { email: email });
     } catch (error) {
       // Si hay algún error durante la autenticación, muestra un mensaje de error
-      alert('Error al iniciar sesión, comprueba correo y contraseña');
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        setAlert({ type: ALERT_TYPES.ERROR, message: 'Error al iniciar sesión. Comprueba el correo y la contraseña.' });
+      } else {
+        setAlert({ type: ALERT_TYPES.ERROR, message: 'Error al iniciar sesión. Inténtalo de nuevo más tarde.' });
+      }
+      resetAlert();
     }
+  };
+
+  const resetAlert = () => {
+    // Reinicia la alerta después de 3 segundos
+    setTimeout(() => {
+      setAlert({ type: null, message: '' });
+    }, 2000); // 3000 milisegundos = 3 segundos
   };
 
   return (
@@ -57,6 +67,9 @@ export default function Signup() {
             <FontAwesome5 name="dog" color="#fff" size={50} style={styles.icon} />
           </View>
         </View>
+        {alert.type && (
+          <Alerts type={alert.type} message={alert.message} />
+        )}
         <View style={styles.inputContainer}>
           <MaterialIcons name="email" size={20} color="#fff" style={styles.icon} />
           <TextInput
@@ -77,8 +90,8 @@ export default function Signup() {
             placeholder="Contraseña"
             secureTextEntry={!showPassword}
           />
-          <TouchableOpacity onPress={toggleShowPassword} style={styles.passwordVisibilityButton}> 
-            <MaterialIcons name={showPassword ? "visibility-off" : "visibility"} size={20} color="#fff" style={styles.icon} />
+          <TouchableOpacity onPress={toggleShowPassword} style={styles.passwordVisibilityButton}>
+            <MaterialIcons name={showPassword ? 'visibility-off' : 'visibility'} size={20} color="#fff" style={styles.icon} />
           </TouchableOpacity>
         </View>
         <TouchableOpacity style={styles.button} onPress={handleLogin}>

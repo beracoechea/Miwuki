@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, Modal, TouchableOpacity, TextInput, StyleSheet, Image, Platform, KeyboardAvoidingView, Keyboard, ScrollView } from 'react-native';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
-import appFirebase from './credenciales';
+import appFirebase from '../Firebase/credenciales';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
-import avatarMap from './ImagenesPerros';
+import avatarMap from '../../ImagenesPerros';
 
 
 // Inicializa Firestore
@@ -15,7 +15,7 @@ export default function PerfilPerruno({ route }) {
   const navigation = useNavigation();
   const { email } = route.params;
   const [modalVisible, setModalVisible] = useState(false);
-  const [avatar, setAvatar] = useState(require('./images/Avatars/Aleatorio.jpg'));
+  const [avatar, setAvatar] = useState(require('../../images/Avatars/Aleatorio.jpg'));
   const [nombrePerro, setNombrePerro] = useState('');
   const [pesoPerro, setPesoPerro] = useState('');
   const [edadPerro, setEdadPerro] = useState('');

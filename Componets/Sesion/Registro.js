@@ -15,18 +15,18 @@ export default class Registro extends Component {
 
   render() {
     return (
-      <ImageBackground source={require('./images/Fondo.jpeg')} style={styles.backgroundImage}>
+      <ImageBackground source={require('../../images/Fondo.jpeg')} style={styles.backgroundImage}>
         <View style={styles.overlay}>
           <Text style={styles.title}>¡Bienvenido a MIWUKI!</Text>
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.buttonGoogle} onPress={this.handleInternalIniciar}>
               <AntDesign name="login" color="#FFF" size={25} style={styles.icon} />
-              <Text style={styles.buttonText}>Iniciar sesion</Text>
+              <Text style={styles.buttonText}>Iniciar sesion  </Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.buttonSignup} onPress={this.handleInternalRegister}>
               <AntDesign name="user" color="#FFF" size={25} style={styles.icon} />
-              <Text style={styles.buttonText}>Crear cuenta</Text>
+              <Text style={styles.buttonText}>Crear cuenta  </Text>
             </TouchableOpacity>
           </View>
         </View>

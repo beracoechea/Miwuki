@@ -1,27 +1,33 @@
-import React, { useState, useEffect } from 'react'; // Importa useEffect de 'react'
-import { Text, TouchableOpacity, View, TextInput, StyleSheet, Alert } from 'react-native';
-import appFirebase from './credenciales';
-import { getAuth, createUserWithEmailAndPassword, fetchSignInMethodsForEmail } from 'firebase/auth';
+// Signup.js
+import React, { useState, useEffect } from 'react';
+import { Text, TouchableOpacity, View, TextInput, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
-const firebaseAuth = getAuth(appFirebase, {
-  persistence: 'local',
-  dataConverter: null
-});
+import Alerts, { ALERT_TYPES } from '../Alerts/Alerts'; // Ajusta la ruta según sea necesario
+import { loginWithEmailAndPassword, registerWithEmailAndPassword } from '../Firebase/firebase'; // Importamos las funciones de Firebase
 
 export default function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false); // Estado para mostrar u ocultar la contraseña
   const [isButtonDisabled, setIsButtonDisabled] = useState(true); // Estado para habilitar/deshabilitar el botón de registro
+  const [alert, setAlert] = useState({ type: null, message: '' }); // Estado para la alerta
   const navigation = useNavigation();
 
   useEffect(() => {
     // Verifica si los campos están vacíos o la contraseña no tiene al menos 6 caracteres
     setIsButtonDisabled(!(email && password && password.length >= 6));
   }, [email, password]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAlert({ type: null, message: '' }); // Limpiar la alerta después de 3 segundos
+    }, 3000);
+
+    return () => clearTimeout(timer); // Limpiar el timer al desmontar el componente
+  }, [alert]);
 
   const handleEmailChange = (text) => {
     setEmail(text);
@@ -37,21 +43,19 @@ export default function Signup() {
 
   const handleSignup = async () => {
     if (!email || !password) {
-      Alert.alert('Por favor ingrese un correo electrónico y una contraseña válidos.');
+      setAlert({ type: ALERT_TYPES.ERROR, message: 'Por favor ingrese un correo electrónico y una contraseña válidos.' });
       return;
     }
 
     try {
-      const signInMethods = await fetchSignInMethodsForEmail(firebaseAuth, email);
-      if (signInMethods.length > 0) {
-        Alert.alert('Este correo electrónico ya está registrado. Por favor, inicie sesión o utilice otro correo electrónico.');
-        return;
-      }
-
-      await createUserWithEmailAndPassword(firebaseAuth, email, password);
-      navigation.navigate('PerfilPerruno', { email: email });
+      await registerWithEmailAndPassword(email, password);
+      navigation.navigate('PerfilUsuario', { email: email });
     } catch (error) {
-      Alert.alert('Error al registrar el usuario: ');
+      if (error.code === 'auth/email-already-in-use') {
+        setAlert({ type: ALERT_TYPES.WARNING, message: 'Este correo electrónico ya está registrado. Por favor, inicie sesión o utilice otro correo electrónico.' });
+      } else {
+        setAlert({ type: ALERT_TYPES.ERROR, message: 'Error al registrar el usuario. Por favor, inténtelo de nuevo más tarde.' });
+      }
     }
   };
 
@@ -65,6 +69,9 @@ export default function Signup() {
             <FontAwesome5 name="dog" color="#fff" size={50} style={styles.icon} />
           </View>
         </View>
+        {alert.type && (
+          <Alerts type={alert.type} message={alert.message} />
+        )}
         <View style={styles.inputContainer}>
           <MaterialIcons name="pets" size={20} color="#fff" style={styles.icon} />
           <TextInput
@@ -96,8 +103,6 @@ export default function Signup() {
     </View>
   );
 }
-
-
 
 const styles = StyleSheet.create({
   container: {

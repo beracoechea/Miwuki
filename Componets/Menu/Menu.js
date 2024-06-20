@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import Inicio from './Inicio';
-import Chatbot from './Chatbot';
-import CaminoAdiestramiento from './CaminoAdiestramiento';
-import Mapa from './Mapa';
-import Cartilla from './Cartilla';
+import Inicio from '../../Inicio';
+import Chatbot from '../../Chatbot';
+import CaminoAdiestramiento from '../../CaminoAdiestramiento';
+import Mapa from '../../Mapa';
+import Cartilla from '../../Cartilla';
 
 const Tab = createBottomTabNavigator();
 

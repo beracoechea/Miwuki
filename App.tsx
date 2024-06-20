@@ -3,14 +3,14 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import Carga from './Carga';
-import Registro from './Registro';
+import Registro from './Componets/Sesion/Registro';
 
 
-import Signup from './Signup';
-import Ingresar from './Ingresar';
-import PerfilPerruno from './PerfilPerruno';
+import Signup from './Componets/Sesion/Signup';
+import Ingresar from './Componets/Sesion/Ingresar';
+import PerfilPerruno from './Componets/Perfiles/PerfilPerruno';
 
-import Menu from './Menu';
+import Menu from './Componets/Menu/Menu';
 import Inicio from './Inicio'
 import CaminoAdiestramiento from './CaminoAdiestramiento';
 import Chatbot from './Chatbot';

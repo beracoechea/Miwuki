@@ -29,8 +29,10 @@ class Carga extends Component {
         // Establecer el mensaje de alerta si no hay conexión
         this.setState({ alertMessage: 'No hay conexión a Internet.', loading: false });
       } else {
-        // Verificar el estado de sesión guardado
-        this.retrieveSessionState();
+        // Verificar el estado de sesión guardado después de 3 segundos (simulado)
+        setTimeout(() => {
+          this.retrieveSessionState();
+        }, 3000); // Aquí esperamos 3 segundos antes de verificar la sesión
       }
     }).catch(error => {
       console.log('Error al verificar la conexión:', error);

@@ -44,7 +44,6 @@ export default class Inicio extends Component {
         this.getUserData();
       }
     } catch (error) {
-      console.error('Error al cargar datos del usuario desde AsyncStorage:', error);
       // En caso de error al cargar desde AsyncStorage, cargar desde Firebase
       this.getUserData();
     }
@@ -60,11 +59,9 @@ export default class Inicio extends Component {
         await AsyncStorage.setItem('userData', JSON.stringify(userData));
         this.setState({ user: userData, loadingUser: false });
       } else {
-        console.log('No se encontraron datos para el usuario');
         this.setState({ loadingUser: false });
       }
     } catch (error) {
-      console.error('Error al obtener los datos del usuario:', error);
       this.setState({ loadingUser: false });
     }
   };
@@ -92,7 +89,6 @@ export default class Inicio extends Component {
               // Navegar al componente de registro ('Registro')
               this.props.navigation.navigate('Registro');
             } catch (error) {
-              console.error('Error al cerrar sesión:', error);
             }
           },
         },

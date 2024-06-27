@@ -38,11 +38,9 @@ export default class HorasComida extends Component {
         });
       } else {
         // Manejar caso donde no hay datos de comida o ultimaComida está ausente
-        console.log('No se encontraron datos de comida para el usuario o ultimaComida está ausente');
         this.setState({ loading: false });
       }
     } catch (error) {
-      console.error('Error al obtener datos de comida del usuario:', error);
       this.setState({ loading: false });
     }
   };
@@ -76,11 +74,11 @@ export default class HorasComida extends Component {
 
       this.setState(nextState, async () => {
         await actualizarComidaPerro(emailUsuario, tipoComida);
-        showAlert(ALERT_TYPES.EXIT, `Se ha registrado la comida para ${tipoComida}`);
+        showAlert(ALERT_TYPES.EXIT, `Se ha registrado la comida para ${tipoComida}    `);
       });
 
     } catch (error) {
-      showAlert(ALERT_TYPES.ERROR, 'Hubo un problema al registrar la comida');
+      showAlert(ALERT_TYPES.ERROR, 'Hubo un problema al registrar la comida    ');
     }
   };
 

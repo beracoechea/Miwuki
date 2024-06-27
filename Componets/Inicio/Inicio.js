@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import { Text, View, ScrollView, StyleSheet, TouchableOpacity ,Image} from 'react-native';
+import { Text, View, ScrollView, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Alert } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import ModalEdit from './Modals/ModalEdit'; // Ajusta la ruta según la estructura de tu proyecto
 import HorasComida from './HorasComida'; // Componente separado para horas de comida
 import { obtenerDatosUsuario } from '../Firebase/ConsultasFirebase';
 import Alerts from '../Alerts/Alerts'; // Ajusta la ruta según donde esté ubicado Alerts
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default class Inicio extends Component {
   state = {
@@ -13,42 +14,91 @@ export default class Inicio extends Component {
       nombre: '',
       apellidos: '',
       telefono: '',
+      email: '', // Agregar el email como parte del estado
     },
     modalVisible: false,
     alertType: null,
     alertMessage: null,
+    loadingUser: true, // Nuevo estado para indicar la carga de datos del usuario
+    refreshing: false, // Para indicar cuando se está actualizando los datos del usuario
   };
-  Ia=() =>{
-    this.props.navigation.navigate('Chatbot');
-  }
 
   componentDidMount() {
     this.props.navigation.setOptions({
       title: 'Perfil de Usuario',
     });
-    this.getUserData();
+    this.loadUserData(); // Cargar los datos del usuario
   }
 
-  componentWillUnmount() {
-    clearInterval(this.updateInterval);
-  }
+  // Función para cargar los datos del usuario desde AsyncStorage si están almacenados
+  loadUserData = async () => {
+    try {
+      // Intentar obtener los datos del usuario desde AsyncStorage
+      const userDataJson = await AsyncStorage.getItem('userData');
+      if (userDataJson) {
+        // Si se encuentran datos, convertirlos a objeto y establecerlos en el estado
+        const userData = JSON.parse(userDataJson);
+        this.setState({ user: userData, loadingUser: false });
+      } else {
+        // Si no hay datos en AsyncStorage, cargarlos desde Firebase
+        this.getUserData();
+      }
+    } catch (error) {
+      console.error('Error al cargar datos del usuario desde AsyncStorage:', error);
+      // En caso de error al cargar desde AsyncStorage, cargar desde Firebase
+      this.getUserData();
+    }
+  };
 
+  // Función para obtener los datos del usuario desde Firebase
   getUserData = async () => {
     const { email } = this.props.route.params;
     try {
       const userData = await obtenerDatosUsuario(email);
       if (userData) {
-        this.setState({ user: userData });
+        // Almacenar los datos del usuario en AsyncStorage para futuras cargas
+        await AsyncStorage.setItem('userData', JSON.stringify(userData));
+        this.setState({ user: userData, loadingUser: false });
       } else {
         console.log('No se encontraron datos para el usuario');
+        this.setState({ loadingUser: false });
       }
     } catch (error) {
       console.error('Error al obtener los datos del usuario:', error);
+      this.setState({ loadingUser: false });
     }
   };
 
   handleUpdateSuccess = (newData) => {
     this.setState({ user: newData, modalVisible: false });
+  };
+
+  handleLogout = async () => {
+    // Mostrar una alerta de confirmación antes de proceder con el cierre de sesión
+    Alert.alert(
+      'Cerrar Sesión',
+      '¿Estás seguro de que deseas cerrar sesión?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Cerrar Sesión',
+          onPress: async () => {
+            try {
+              // Limpiar los datos de sesión
+              await AsyncStorage.removeItem('userData');
+              // Navegar al componente de registro ('Registro')
+              this.props.navigation.navigate('Registro');
+            } catch (error) {
+              console.error('Error al cerrar sesión:', error);
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
   };
 
   showAlert = (type, message) => {
@@ -60,7 +110,16 @@ export default class Inicio extends Component {
   };
 
   render() {
-    const { modalVisible, user, alertType, alertMessage } = this.state;
+    const { modalVisible, user, alertType, alertMessage, loadingUser } = this.state;
+
+    // Mostrar un indicador de carga mientras se obtienen los datos del usuario
+    if (loadingUser) {
+      return (
+        <View style={styles.container}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      );
+    }
 
     return (
       <View style={styles.container}>
@@ -69,12 +128,16 @@ export default class Inicio extends Component {
           <View style={styles.headerContainer}>
             <View style={styles.headerContent}>
               <Text style={styles.headerText}>{user.nombre}</Text>
+              <Text style={styles.headerText}>{user.apellidos}</Text>
               <Text style={styles.subheaderText}>Email: {user.email}</Text>
               <Text style={styles.subheaderText}>Teléfono: {user.telefono}</Text>
             </View>
             <View style={styles.headerButtons}>
               <TouchableOpacity style={styles.headerButton} onPress={() => this.setState({ modalVisible: true })}>
                 <SimpleLineIcons name="settings" size={24} color="#000" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.headerButton} onPress={this.handleLogout}>
+                <SimpleLineIcons name="logout" size={24} color="#000" />
               </TouchableOpacity>
             </View>
           </View>
@@ -85,15 +148,6 @@ export default class Inicio extends Component {
           {/* Componente de Horas de Comida */}
           <HorasComida emailUsuario={user.email} showAlert={this.showAlert} />
 
-           {/* Botón IA */}
-            <View style={styles.containerIA}>
-            <Image source={require('../../images/Perritos.png')} style={styles.perrito1}></Image>
-            <TouchableOpacity style={styles.iaButton} onPress={this.Ia}>
-              <SimpleLineIcons name="magic-wand" size={24} style={styles.iaButtonIcon} />
-              <Text style={styles.iaButtonText}>   Pregúntale algo a la IA  </Text>
-            </TouchableOpacity>
-            </View>
-          
           {/* Modal para editar datos */}
           <ModalEdit
             visible={modalVisible}
@@ -152,8 +206,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
 
-
-
   containerIA: {
     flex: 1,
     justifyContent: 'center',
@@ -167,7 +219,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: -45,
-    
   },
   iaButtonText: {
     color: '#FFFFFF',
@@ -178,8 +229,8 @@ const styles = StyleSheet.create({
     color: 'blue',
   },
   perrito1: {
-    width: 300, 
+    width: 300,
     height: 140,
-    zIndex:-1,
+    zIndex: -1,
   },
 });

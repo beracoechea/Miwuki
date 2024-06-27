@@ -22,7 +22,7 @@ const Alerts = ({ type, message, onClose }) => {
         Vibration.vibrate([0, 200, 100, 200]); // Vibra en otro patrón
         break;
       case ALERT_TYPES.INFO:
-        Vibration.vibrate(0,100); // Vibra por 100 milisegundos
+        Vibration.vibrate(0,100,0,0); // Vibra por 100 milisegundos
         break;
       case ALERT_TYPES.EXIT:
         Vibration.vibrate([0, 200, 100,0]); // Otro patrón de vibración

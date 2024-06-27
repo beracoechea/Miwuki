@@ -3,7 +3,7 @@ import { Text, View, TouchableOpacity, TextInput, StyleSheet, ScrollView, Keyboa
 import { useNavigation } from '@react-navigation/native';
 import { guardarUsuario } from '../Firebase/RegistroFirebase';
 import Alerts, { ALERT_TYPES } from '../Alerts/Alerts';
-import Ionicons  from 'react-native-vector-icons/Ionicons'; // Asegúrate de importar el icono adecuado
+import Ionicons from 'react-native-vector-icons/Ionicons'; // Asegúrate de importar el icono adecuado
 
 export default function UserRegistrationForm({ route }) {
   const navigation = useNavigation();
@@ -29,43 +29,32 @@ export default function UserRegistrationForm({ route }) {
     };
   }, []);
 
-  useEffect(() => {
-    // Limpiar la alerta después de 3 segundos si está visible
-    if (alert.visible) {
-      const timer = setTimeout(() => {
-        setAlert({ visible: false, type: '', message: '' });
-      }, 1000);
-
-      return () => clearTimeout(timer); // Limpiar el timeout al desmontar el componente
-    }
-  }, [alert]);
-
   const handleSaveButtonPress = async () => {
     let alertMessage = '';
     let alertType = '';
 
     if (!nombre.trim() || !apellidos.trim() || !telefono) {
-      alertMessage = 'Por favor, completa todos los campos.   ';
+      alertMessage = 'Por favor, completa todos los campos.    ';
       alertType = ALERT_TYPES.WARNING;
     } else if (!validarTelefono(telefono)) {
-      alertMessage = 'El número de teléfono debe tener exactamente 10 dígitos y contener solo números.      ';
+      alertMessage = 'El número de teléfono debe tener exactamente 10 dígitos y contener solo números.     ';
       alertType = ALERT_TYPES.ERROR;
     } else if (!validarNombreApellido(nombre) || !validarNombreApellido(apellidos)) {
-      alertMessage = 'El nombre y apellidos deben contener solo caracteres alfabéticos.         ';
+      alertMessage = 'El nombre y apellidos deben contener solo caracteres alfabéticos.    ';
       alertType = ALERT_TYPES.ERROR;
     } else {
       try {
         await guardarUsuario({ nombre, apellidos, telefono, email });
-        alertMessage = 'Información guardada exitosamente.      ';
-        alertType = ALERT_TYPES.INFO;
+        alertMessage = 'Información guardada exitosamente.   ';
+        alertType = ALERT_TYPES.EXIT;
 
         setTimeout(() => {
-          navigation.navigate('Menu', { email:email });
-        }, 2000); // Navegar después de 2 segundos 
+          navigation.navigate('Menu', { email });
+        }, 2000); // Navegar después de 2 segundos
 
       } catch (error) {
-        console.error('Error al guardar los datos del usuario:', error);
-        alertMessage = 'Error al guardar los datos del usuario. Por favor, inténtalo de nuevo más tarde.       ';
+        console.error('Error al guardar los datos del usuario:    ', error);
+        alertMessage = 'Error al guardar los datos del usuario. Por favor, inténtalo de nuevo más tarde.    ';
         alertType = ALERT_TYPES.ERROR;
       }
     }
@@ -82,7 +71,7 @@ export default function UserRegistrationForm({ route }) {
   };
 
   const validarNombreApellido = (texto) => {
-    return /^[a-zA-Z\s]+$/.test(texto); // Validar que solo contiene caracteres alfabéticos y espacios
+    return /^[a-zA-Z\s ñ]+$/.test(texto); // Validar que solo contiene caracteres alfabéticos y espacios
   };
 
   const handleInputFocus = (inputName) => {
@@ -91,6 +80,10 @@ export default function UserRegistrationForm({ route }) {
 
   const handleInputBlur = () => {
     setFocusedInput(null);
+  };
+
+  const handleCloseAlert = () => {
+    setAlert({ visible: false, type: '', message: '' });
   };
 
   return (
@@ -133,7 +126,7 @@ export default function UserRegistrationForm({ route }) {
           </TouchableOpacity>
         </View>
       </View>
-      {alert.visible && <Alerts type={alert.type} message={alert.message} onClose={() => this.setState({ alertMessage: '' })} />}
+      {alert.visible && <Alerts type={alert.type} message={alert.message} onClose={handleCloseAlert} />}
     </ScrollView>
   );
 }

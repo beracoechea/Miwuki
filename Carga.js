@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { View, ActivityIndicator, StyleSheet, ImageBackground, TouchableOpacity, AsyncStorage } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, ImageBackground, TouchableOpacity } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import Icon from 'react-native-vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Alerts from './Componets/Alerts/Alerts'; // Importar componente Alerts
 
 class Carga extends Component {
@@ -10,34 +11,32 @@ class Carga extends Component {
     this.state = {
       isConnected: null,
       loading: true,
-      alertMessage: '', // Nuevo estado para almacenar el mensaje de alerta
+      alertMessage: '', // Estado para almacenar el mensaje de alerta
     };
   }
 
   componentDidMount() {
-    setTimeout(() => {
-      this.checkInternetConnection(); // Llamar a la función de verificación después de 3 segundos
-    }, 3000);
+    this.checkInternetConnection(); // Verificar la conexión a Internet al montar el componente
   }
 
   checkInternetConnection = () => {
     this.setState({ loading: true }); // Mostrar la rueda de carga mientras se verifica la conexión
 
     NetInfo.fetch().then(state => {
-      this.setState({ isConnected: state.isConnected, loading: false });
+      this.setState({ isConnected: state.isConnected });
 
       if (!state.isConnected) {
         // Establecer el mensaje de alerta si no hay conexión
-        this.setState({ alertMessage: 'No hay conexión a Internet.  ' });
+        this.setState({ alertMessage: 'No hay conexión a Internet.', loading: false });
       } else {
-          // Si no hay un usuario autenticado, navegar a 'SalaRegistro'
-          this.navigateToRegistro();
-        
+        // Verificar el estado de sesión guardado
+        this.retrieveSessionState();
       }
     }).catch(error => {
+      console.log('Error al verificar la conexión:', error);
       this.setState({ isConnected: false, loading: false });
       // Mostrar mensaje de error si falla la verificación de conexión
-      this.setState({ alertMessage: 'Error al verificar la conexión.   ' });
+      this.setState({ alertMessage: 'Error al verificar la conexión.' });
     });
   };
 
@@ -47,20 +46,12 @@ class Carga extends Component {
 
   navigateToMenu = () => {
     // Navegar a la pantalla 'Menu'
-    this.props.navigation.navigate('Registro');
+    this.props.navigation.navigate('Menu');
   };
 
   navigateToRegistro = () => {
-    // Navegar a la pantalla 'SalaRegistro'
+    // Navegar a la pantalla 'Registro'
     this.props.navigation.navigate('Registro');
-  };
-
-  storeSessionState = async (loggedIn) => {
-    try {
-      await AsyncStorage.setItem('isLoggedIn', loggedIn.toString());
-    } catch (error) {
-      console.log('Error storing session state:', error.message);
-    }
   };
 
   retrieveSessionState = async () => {
@@ -70,11 +61,16 @@ class Carga extends Component {
         // Si hay sesión activa guardada, navegar directamente a 'Menu'
         this.navigateToMenu();
       } else {
-        // Si no hay sesión activa guardada, continuar a 'SalaRegistro'
-        this.navigateToSalaRegistro();
+        // Si no hay sesión activa guardada, continuar a 'Registro'
+        this.navigateToRegistro();
       }
     } catch (error) {
-      console.log('Error retrieving session state:', error.message);
+      console.log('Error al recuperar el estado de sesión:', error.message);
+      // En caso de error, continuar a 'Registro'
+      this.navigateToRegistro();
+    } finally {
+      // Finalizar la carga una vez que se ha determinado la navegación
+      this.setState({ loading: false });
     }
   };
 
@@ -85,7 +81,7 @@ class Carga extends Component {
       return (
         <ImageBackground source={require('./images/Carga.jpeg')} style={styles.backgroundImage}>
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size={70} color="#000000" />
+            <ActivityIndicator size="large" color="#000000" />
           </View>
         </ImageBackground>
       );
@@ -97,24 +93,16 @@ class Carga extends Component {
           {!isConnected && (
             <View style={styles.disconnectedContainer}>
               <TouchableOpacity onPress={this.handleRetry}>
-                <Icon.Button
-                  name="reload"
-                  backgroundColor="#8B4513"
-                  onPress={this.handleRetry}
-                  style={styles.retryButton}
-                  iconStyle={styles.iconStyle}
-                  size={30}
-                >
-                  Retry
-                </Icon.Button>
+                <Icon name="reload" size={30} color="#fff" />
               </TouchableOpacity>
             </View>
           )}
         </View>
 
         {/* Renderizar Alerts solo si no hay conexión o hay un error */}
-        {(!isConnected || alertMessage !== '') && <Alerts type={(!isConnected ? 'error' : 'info')} message={alertMessage} onClose={() => this.setState({ alertMessage: '' })} />
-      }
+        {(!isConnected || alertMessage !== '') && (
+          <Alerts type={!isConnected ? 'error' : 'info'} message={alertMessage} onClose={() => this.setState({ alertMessage: '' })} />
+        )}
       </ImageBackground>
     );
   }
@@ -130,7 +118,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: '50%',
   },
   container: {
     flex: 1,
@@ -138,18 +125,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   disconnectedContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: '170%',
-  },
-  retryButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-  },
-  iconStyle: {
-    marginRight: 10,
-    color: '#fff',
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 10,
+    borderRadius: 5,
   },
 });
 

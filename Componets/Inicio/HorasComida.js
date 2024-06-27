@@ -10,10 +10,11 @@ export default class HorasComida extends Component {
     desayunoComio: false,
     almuerzoComio: false,
     cenaComio: false,
+    loading: true, // Agregar estado de carga
   };
 
   componentDidMount() {
-    // Cargar estado inicial desde Firebase al montar el componente
+    // No cargar datos iniciales hasta asegurarse de que el componente esté montado
     this.loadInitialData();
   }
 
@@ -25,7 +26,7 @@ export default class HorasComida extends Component {
       // Obtener datos de Firebase para el usuario dado
       const userData = await obtenerDatosUsuario(emailUsuario);
 
-      if (userData) {
+      if (userData && userData.ultimaComida) {
         // Comparar y marcar la última comida registrada
         const { ultimaComida } = userData;
 
@@ -33,12 +34,16 @@ export default class HorasComida extends Component {
           desayunoComio: ultimaComida === 'desayuno',
           almuerzoComio: ultimaComida === 'almuerzo',
           cenaComio: ultimaComida === 'cena',
+          loading: false, // Indicar que la carga ha terminado correctamente
         });
       } else {
-        console.log('No se encontraron datos de comida para el usuario');
+        // Manejar caso donde no hay datos de comida o ultimaComida está ausente
+        console.log('No se encontraron datos de comida para el usuario o ultimaComida está ausente');
+        this.setState({ loading: false });
       }
     } catch (error) {
       console.error('Error al obtener datos de comida del usuario:', error);
+      this.setState({ loading: false });
     }
   };
 
@@ -53,20 +58,16 @@ export default class HorasComida extends Component {
 
     try {
       // Inicializar variables para determinar cuál es el próximo tipo de comida
-      let nextComida = '';
       let nextState = {};
 
       switch (tipoComida) {
         case 'desayuno':
-          nextComida = 'almuerzo';
           nextState = { desayunoComio: true, almuerzoComio: false, cenaComio: false };
           break;
         case 'almuerzo':
-          nextComida = 'cena';
           nextState = { desayunoComio: false, almuerzoComio: true, cenaComio: false };
           break;
         case 'cena':
-          nextComida = 'desayuno';
           nextState = { desayunoComio: false, almuerzoComio: false, cenaComio: true };
           break;
         default:
@@ -84,7 +85,16 @@ export default class HorasComida extends Component {
   };
 
   render() {
-    const { desayunoComio, almuerzoComio, cenaComio } = this.state;
+    const { desayunoComio, almuerzoComio, cenaComio, loading } = this.state;
+
+    // Mostrar un indicador de carga mientras se obtienen los datos iniciales
+    if (loading) {
+      return (
+        <View style={styles.container}>
+          <Text>Cargando datos...</Text>
+        </View>
+      );
+    }
 
     return (
       <View>
@@ -155,6 +165,11 @@ export default class HorasComida extends Component {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   title: {
     fontSize: 25,
     fontWeight: 'bold',
@@ -174,28 +189,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  horarioRecomendado: {
+    fontSize: 16,
+    flex: 1,
+    marginLeft: 10,
+  },
+  button: {
+    backgroundColor: '#D2B48C',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  buttonComido: {
+    backgroundColor: '#D2B48C',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
   dot: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#000',
+    backgroundColor: '#D2B48C',
     marginRight: 10,
-  },
-  buttonText: {
-    flex: 1,
-    fontSize: 16,
-  },
-  horarioRecomendado: {
-    fontSize: 14,
-    color: '#888',
-    marginTop: 5,
-  },
-  button: {
-    padding: 10,
-    borderRadius: 5,
-    marginLeft: 'auto',
-  },
-  buttonComido: {
-    backgroundColor: '#8B4513',
   },
 });

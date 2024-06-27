@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import Inicio from '../../Inicio';
+import Inicio from '../Inicio/Inicio';
 import Chatbot from '../../Chatbot';
 import CaminoAdiestramiento from '../../CaminoAdiestramiento';
 import Mapa from '../../Mapa';
@@ -19,7 +19,7 @@ export default class Menu extends Component {
   }
 
   render() {
-    const { email, perro } = this.props.route.params;
+    const { email } = this.props.route.params;
 
     return (
       <Tab.Navigator
@@ -57,7 +57,7 @@ export default class Menu extends Component {
           name="Inicio"
           initialParams={{ email}}
           options={{
-            tabBarLabel: 'Inicio',
+            tabBarLabel: 'Inicio ' ,
             headerShown: false,
           }}
         >

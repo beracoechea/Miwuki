@@ -113,7 +113,8 @@ class Carga extends Component {
         </View>
 
         {/* Renderizar Alerts solo si no hay conexión o hay un error */}
-        {(!isConnected || alertMessage !== '') && <Alerts type={(!isConnected ? 'error' : 'info')} message={alertMessage} />}
+        {(!isConnected || alertMessage !== '') && <Alerts type={(!isConnected ? 'error' : 'info')} message={alertMessage} onClose={() => this.setState({ alertMessage: '' })} />
+      }
       </ImageBackground>
     );
   }

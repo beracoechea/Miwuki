@@ -8,10 +8,11 @@ import Registro from './Componets/Sesion/Registro';
 
 import Signup from './Componets/Sesion/Signup';
 import Ingresar from './Componets/Sesion/Ingresar';
-import PerfilPerruno from './Componets/Perfiles/PerfilPerruno';
+import PerfilMascotas from './Componets/Perfiles/PerfilMascotas';
+import PerfilUsuario from './Componets/Perfiles/PerfilUsuario';
 
 import Menu from './Componets/Menu/Menu';
-import Inicio from './Inicio'
+import Inicio from './Componets/Inicio/Inicio';
 import CaminoAdiestramiento from './CaminoAdiestramiento';
 import Chatbot from './Chatbot';
 import Mapa from './Mapa';
@@ -34,7 +35,8 @@ function App(): JSX.Element {
         <Stack.Screen name="Registro" component={Registro} options={{ headerShown: false }}/>
 
         <Stack.Screen name="Signup" component={Signup} options={{ headerShown: false }}/>
-        <Stack.Screen name="PerfilPerruno" component={PerfilPerruno} options={{ headerShown: false }}/>
+        <Stack.Screen name="PerfilUsuario" component={PerfilUsuario} options={{ headerShown: false }}/>
+        <Stack.Screen name="PerfilMascotas" component={PerfilMascotas} options={{ headerShown: false }}/>
         <Stack.Screen name="Ingresar" component={Ingresar} options={{ headerShown: false }}/>
 
         <Stack.Screen name="Menu" component={Menu} options={{ headerShown: false }}/>

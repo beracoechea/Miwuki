@@ -6,7 +6,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 import Alerts, { ALERT_TYPES } from '../Alerts/Alerts'; // Ajusta la ruta según sea necesario
-import { loginWithEmailAndPassword } from '../Firebase/firebase'; // Importamos la función de login
+import { loginWithEmailAndPassword } from '../Firebase/Authfirebase'; // Importamos la función de login
 
 export default function Signup() {
   const [email, setEmail] = useState('');
@@ -69,6 +69,7 @@ export default function Signup() {
         </View>
         {alert.type && (
           <Alerts type={alert.type} message={alert.message} />
+          
         )}
         <View style={styles.inputContainer}>
           <MaterialIcons name="email" size={20} color="#fff" style={styles.icon} />

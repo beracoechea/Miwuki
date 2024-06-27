@@ -6,7 +6,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 import Alerts, { ALERT_TYPES } from '../Alerts/Alerts'; // Ajusta la ruta según sea necesario
-import { loginWithEmailAndPassword, registerWithEmailAndPassword } from '../Firebase/firebase'; // Importamos las funciones de Firebase
+import { registerWithEmailAndPassword } from '../Firebase/Authfirebase'; // Importamos las funciones de Firebase
 
 export default function Signup() {
   const [email, setEmail] = useState('');

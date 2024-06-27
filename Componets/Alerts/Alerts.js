@@ -6,26 +6,40 @@ export const ALERT_TYPES = {
   ERROR: 'error',
   WARNING: 'warning',
   INFO: 'info',
+  EXIT: 'exit',
 };
 
-const Alerts = ({ type, message }) => {
+const Alerts = ({ type, message, onClose }) => {
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
-    // Vibra el teléfono cuando se muestra la alerta
-    Vibration.vibrate();
+    // Vibra el teléfono según el tipo de alerta
+    switch (type) {
+      case ALERT_TYPES.ERROR:
+        Vibration.vibrate([0, 400,0,400]); // Vibra en un patrón [pausa, duración]
+        break;
+      case ALERT_TYPES.WARNING:
+        Vibration.vibrate([0, 200, 100, 200]); // Vibra en otro patrón
+        break;
+      case ALERT_TYPES.INFO:
+        Vibration.vibrate(0,100); // Vibra por 100 milisegundos
+        break;
+      case ALERT_TYPES.EXIT:
+        Vibration.vibrate([0, 200, 100,0]); // Otro patrón de vibración
+        break;
+      default:
+        Vibration.vibrate(); // Vibración por defecto
+        break;
+    }
 
     // Oculta la alerta después de 3 segundos
     const timeout = setTimeout(() => {
       setVisible(false);
+      onClose(); // Llamar a la función onClose para limpiar la alerta desde ModalEdit
     }, 3000);
 
     return () => clearTimeout(timeout); // Limpia el timeout al desmontar el componente
   }, []);
-
-  if (!visible) {
-    return null; // No renderizar nada si no es visible
-  }
 
   let backgroundColor;
   let iconColor;
@@ -40,6 +54,10 @@ const Alerts = ({ type, message }) => {
       break;
     case ALERT_TYPES.INFO:
       backgroundColor = 'blue';
+      iconColor = 'white';
+      break;
+    case ALERT_TYPES.EXIT:
+      backgroundColor = 'green';
       iconColor = 'white';
       break;
     default:
@@ -69,16 +87,14 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     zIndex: 100,
   },
-
   box: {
-      height: 'auto',
-      alignSelf: 'stretch',
-      justifyContent: 'center',
-      paddingVertical: 8,
-      paddingHorizontal: 16,
-      flexDirection: 'row',
+    height: 'auto',
+    alignSelf: 'stretch',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
   },
-
   icon: {
     width: 18,
     height: 18,
@@ -86,13 +102,11 @@ const styles = StyleSheet.create({
     marginRight: 8,
     paddingLeft: 1,
   },
-
   text: {
     color: 'white',
     fontSize: 14,
     alignSelf: 'center',
   },
-    
 });
 
 export default Alerts;

@@ -2,7 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import Carga from './Carga';
+import Carga from './Componets/Screens/Carga';
 import Registro from './Componets/Sesion/Registro';
 
 
@@ -38,7 +38,7 @@ function App(): JSX.Element {
         <Stack.Screen name="PerfilUsuario" component={PerfilUsuario} options={{ headerShown: false }}/>
         <Stack.Screen name="PerfilMascotas" component={PerfilMascotas} options={{ headerShown: false }}/>
         <Stack.Screen name="Ingresar" component={Ingresar} options={{ headerShown: false }}/>
-
+        
         <Stack.Screen name="Menu" component={Menu} options={{ headerShown: false }}/>
         <Stack.Screen name="Inicio" component={Inicio} options={{ headerShown: false }}/>
         <Stack.Screen name="CaminoAdiestramiento" component={CaminoAdiestramiento} options={{ headerShown: true }}/>

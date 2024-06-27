@@ -1,6 +1,6 @@
 // ConsultasFirebase.js
 
-import { getFirestore, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, updateDoc,getDocs,collection } from 'firebase/firestore';
 import appFirebase from '../Firebase/credenciales';
 
 const firestore = getFirestore(appFirebase);
@@ -8,9 +8,7 @@ const firestore = getFirestore(appFirebase);
 export async function guardarUsuario({ nombre, apellidos, telefono, email }) {
   try {
     await updateDoc(doc(firestore, 'Usuarios', email), { nombre, apellidos, telefono });
-    console.log('Usuario guardado exitosamente en Firestore');
   } catch (error) {
-    console.error('Error al guardar usuario en Firestore:', error);
     throw error; // Propagamos el error para manejarlo en el componente que llama a esta función
   }
 }
@@ -21,11 +19,9 @@ export async function obtenerDatosUsuario(email) {
     if (userDoc.exists()) {
       return userDoc.data();
     } else {
-      console.log('No se encontraron datos para el usuario');
       return null;
     }
   } catch (error) {
-    console.error('Error al obtener datos del usuario desde Firestore:', error);
     throw error; // Propagamos el error para manejarlo en el componente que llama a esta función
   }
 }
@@ -35,11 +31,29 @@ export async function actualizarComidaPerro(emailUsuario, tipoComida) {
     await updateDoc(usuarioDocRef, {
       ultimaComida: tipoComida,
     });
-    console.log(`Se actualizó la comida del usuario con email "${emailUsuario}" a: ${tipoComida}`);
   } catch (error) {
-    console.error('Error al actualizar comida del usuario en Firestore:', error);
     throw error; // Propaga el error para manejarlo en el componente que llama a esta función
   }
 }
+
+export async function obtenerMascotasUsuario(email) {
+  try {
+    const mascotasRef = collection(firestore, 'Usuarios', email, 'Mascotas');
+    const mascotasSnapshot = await getDocs(mascotasRef);
+
+    const mascotas = [];
+    mascotasSnapshot.forEach((doc) => {
+      mascotas.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+
+    return mascotas;
+  } catch (error) {
+    throw error;
+  }
+}
+
 
 // Puedes definir otras funciones de Firebase que necesites aquí

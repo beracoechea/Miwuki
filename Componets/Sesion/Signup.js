@@ -70,7 +70,7 @@ export default function Signup() {
           </View>
         </View>
         {alert.type && (
-          <Alerts type={alert.type} message={alert.message} />
+          <Alerts type={alert.type} message={alert.message} onClose={() => this.setState({ alertType: null, alertMessage: null })} />
         )}
         <View style={styles.inputContainer}>
           <MaterialIcons name="pets" size={20} color="#fff" style={styles.icon} />

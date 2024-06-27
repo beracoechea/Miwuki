@@ -170,6 +170,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 25,
+    color:'#000',
     fontWeight: 'bold',
     textAlign: 'center',
     margin: 30,
@@ -188,21 +189,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   horarioRecomendado: {
-    fontSize: 16,
+    fontSize: 14,
     flex: 1,
     marginLeft: 10,
   },
   button: {
     backgroundColor: '#D2B48C',
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    borderRadius: 50,
+    paddingVertical: 15,
+    paddingHorizontal: 15,
   },
   buttonComido: {
     backgroundColor: '#D2B48C',
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    borderRadius: 50,
+    paddingVertical: 15,
+    paddingHorizontal: 15,
   },
   dot: {
     width: 10,

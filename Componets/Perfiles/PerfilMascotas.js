@@ -1,31 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Modal, TouchableOpacity, TextInput, StyleSheet, Image, Platform, KeyboardAvoidingView, Keyboard, ScrollView } from 'react-native';
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
-import appFirebase from '../Firebase/credenciales';
+import { Text, View, Modal, TouchableOpacity, TextInput, StyleSheet, Image, ScrollView, Keyboard } from 'react-native';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
 import avatarMap from '../../ImagenesPerros';
+import { guardarMascota } from '../Firebase/RegistroFirebase';
+import { Picker } from '@react-native-picker/picker';
+import Alerts, { ALERT_TYPES } from '../Alerts/Alerts';
 
-
-// Inicializa Firestore
-const firestore = getFirestore(appFirebase);
-
-export default function PerfilPerruno({ route }) {
+const PerfilPerruno = ({ route }) => {
   const navigation = useNavigation();
   const { email } = route.params;
+
+  // State para manejar los datos del formulario
   const [modalVisible, setModalVisible] = useState(false);
   const [avatar, setAvatar] = useState(require('../../images/Avatars/Aleatorio.jpg'));
-  const [nombrePerro, setNombrePerro] = useState('');
-  const [pesoPerro, setPesoPerro] = useState('');
-  const [edadPerro, setEdadPerro] = useState('');
-  const [razaPerro, setRazaPerro] = useState('');
+  const [tipoMascota, setTipoMascota] = useState('Perro');
+  const [nombreMascota, setNombreMascota] = useState('');
+  const [pesoMascota, setPesoMascota] = useState('');
+  const [edadMascota, setEdadMascota] = useState('');
+  const [razaMascota, setRazaMascota] = useState('');
   const [selectedAvatarName, setSelectedAvatarName] = useState('Aleatorio.jpg');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
-  const [generoPerro, setGeneroPerro] = useState('');
-  const [genderSelected, setGenderSelected] = useState(null);
+  const [generoMascota, setGeneroMascota] = useState('');
   const [saveButtonDisabled, setSaveButtonDisabled] = useState(true);
 
+  // State para manejar alertas
+  const [alertType, setAlertType] = useState(null);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertVisible, setAlertVisible] = useState(false);
+
+  // Estado temporal para el género seleccionado
+  const [selectedGender, setSelectedGender] = useState(null);
+
+  // Efecto para detectar teclado visible
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
       setKeyboardVisible(true);
@@ -40,55 +48,58 @@ export default function PerfilPerruno({ route }) {
     };
   }, []);
 
-  // Función para habilitar o deshabilitar el botón de guardar según el estado de los campos obligatorios
+  // Efecto para habilitar/deshabilitar el botón de guardar
   useEffect(() => {
-    if (nombrePerro && pesoPerro && edadPerro && razaPerro && generoPerro && selectedAvatarName !== 'Aleatorio.jpg') {
-      setSaveButtonDisabled(false);
-    } else {
-      setSaveButtonDisabled(true);
-    }
-  }, [nombrePerro, pesoPerro, edadPerro, razaPerro, generoPerro , selectedAvatarName]);
+    validateForm();
+  }, [nombreMascota, pesoMascota, edadMascota, razaMascota, generoMascota, selectedAvatarName]);
 
+  // Función para validar el formulario antes de guardar
+  const validateForm = () => {
+    const formIsValid = nombreMascota && pesoMascota && edadMascota && razaMascota && generoMascota && selectedAvatarName !== 'Aleatorio.jpg';
+    setSaveButtonDisabled(!formIsValid);
+  };
+
+  // Función para manejar la selección de avatar
   const handleAvatarPress = (avatarName) => {
     setAvatar(avatarMap[avatarName]);
     setSelectedAvatarName(avatarName);
     setModalVisible(false);
   };
 
+  // Función para manejar el guardado de los datos de la mascota
   const handleSaveButtonPress = async () => {
     try {
-      if (!nombrePerro || !pesoPerro || !edadPerro || !razaPerro || !generoPerro) {
-        alert('Por favor, completa todos los campos.');
-        return;
+      validateForm(); // Validar antes de guardar
+
+      if (saveButtonDisabled) {
+        throw new Error('Por favor, completa todos los campos.');
       }
 
-      await setDoc(doc(firestore, 'Perros', email), {
-        nombrePerro,
-        pesoPerro,
-        edadPerro,
-        razaPerro,
+      await guardarMascota({
+        email,
+        tipoMascota,
+        nombreMascota,
+        pesoMascota,
+        edadMascota,
+        razaMascota,
         avatar: selectedAvatarName,
-        sexo: generoPerro
+        sexo: generoMascota,
       });
 
-
-      navigation.navigate('Menu', { email: email });
+      navigation.navigate('Menu', { email });
 
     } catch (error) {
-      console.error('Error al guardar los datos del perro:', error);
-      alert('Error al guardar los datos del perro. Por favor, inténtalo de nuevo más tarde.');
+      console.error('Error al guardar los datos de la mascota:', error);
+      setAlertType(ALERT_TYPES.ERROR);
+      setAlertMessage('Error al guardar los datos de la mascota. Por favor, inténtalo de nuevo más tarde.');
+      setAlertVisible(true);
     }
   };
 
-  const handleGenderButtonPress = async (gender) => {
-    try {
-      setGeneroPerro(gender);
-      await setDoc(doc(firestore, 'Perros', email), { sexo: gender });
-      setGenderSelected(gender);
-    } catch (error) {
-      console.error('Error al guardar el género del perro:', error);
-      alert('Error al guardar el género del perro. Por favor, inténtalo de nuevo más tarde.');
-    }
+  // Función para manejar la selección de género
+  const handleGenderButtonPress = (gender) => {
+    setSelectedGender(gender); // Actualiza el estado temporal
+    setGeneroMascota(gender); // Actualiza el estado definitivo cuando se elija
   };
 
   return (
@@ -106,46 +117,68 @@ export default function PerfilPerruno({ route }) {
           </TouchableOpacity>
         </View>
         <View style={[styles.infoContainer, keyboardVisible && styles.infoContainerKeyboardVisible]}>
+          <Picker
+            selectedValue={tipoMascota}
+            style={styles.input}
+            onValueChange={(itemValue) => setTipoMascota(itemValue)}
+          >
+            <Picker.Item label="Perro" value="Perro" />
+            <Picker.Item label="Gato" value="Gato" />
+            <Picker.Item label="Conejo" value="Conejo" />
+            <Picker.Item label="Pájaro" value="Pájaro" />
+            <Picker.Item label="Tortuga" value="Tortuga" />
+            <Picker.Item label="Pez" value="Pez" />
+            <Picker.Item label="Uron" value="Uron" />
+
+          </Picker>
           <TextInput
             style={[styles.input, keyboardVisible && styles.inputFocused]}
-            placeholder="Nombre del perro"
-            value={nombrePerro}
-            onChangeText={setNombrePerro}
+            placeholder="Nombre de la mascota"
+            value={nombreMascota}
+            onChangeText={setNombreMascota}
           />
           <TextInput
             style={[styles.input, keyboardVisible && styles.inputFocused]}
             placeholder="Peso"
-            value={pesoPerro}
+            value={pesoMascota}
             keyboardType="numeric"
-            onChangeText={setPesoPerro}
+            onChangeText={setPesoMascota}
           />
           <TextInput
             style={[styles.input, keyboardVisible && styles.inputFocused]}
             placeholder="Edad en años"
-            value={edadPerro}
+            value={edadMascota}
             keyboardType="numeric"
-            onChangeText={setEdadPerro}
+            onChangeText={setEdadMascota}
           />
           <TextInput
             style={[styles.input, keyboardVisible && styles.inputFocused]}
             placeholder="Raza"
-            value={razaPerro}
-            onChangeText={setRazaPerro}
+            value={razaMascota}
+            onChangeText={setRazaMascota}
           />
           <View style={styles.genderContainer}>
             <TouchableOpacity onPress={() => handleGenderButtonPress('masculino')}>
-              <MaterialCommunityIcons name="gender-male" size={40} color={genderSelected === 'masculino' ? '#007BFF' : '#000'} />
+              <MaterialCommunityIcons
+                name="gender-male"
+                size={40}
+                color={selectedGender === 'masculino' ? '#007BFF' : '#000'}
+              />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => handleGenderButtonPress('femenino')}>
-              <MaterialCommunityIcons name="gender-female" size={40} color={genderSelected === 'femenino' ? 'pink' : '#000'} />
+              <MaterialCommunityIcons
+                name="gender-female"
+                size={40}
+                color={selectedGender === 'femenino' ? 'pink' : '#000'}
+              />
             </TouchableOpacity>
           </View>
           <TouchableOpacity
-            style={[styles.saveButton, saveButtonDisabled && styles.saveButtonDisabled]} // Aplicar estilo deshabilitado si el botón está deshabilitado
+            style={[styles.saveButton, saveButtonDisabled && styles.saveButtonDisabled]}
             onPress={handleSaveButtonPress}
-            disabled={saveButtonDisabled} // Habilitar o deshabilitar el botón según el estado
+            disabled={saveButtonDisabled}
           >
-         <Text style={styles.saveButtonText}>Guardar</Text>
+            <Text style={styles.saveButtonText}>Guardar</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -158,18 +191,27 @@ export default function PerfilPerruno({ route }) {
         }}
       >
         <View style={styles.modalBackground}>
-  <ScrollView contentContainerStyle={styles.modalContainer} horizontal>
-    {Object.keys(avatarMap).map((avatarName, index) => (
-      <TouchableOpacity key={index} onPress={() => handleAvatarPress(avatarName)}>
-        <Image source={avatarMap[avatarName]} style={styles.avatarOption} />
-      </TouchableOpacity>
-    ))}
-  </ScrollView>
-</View>
+          <ScrollView contentContainerStyle={styles.modalContainer} horizontal>
+            {Object.keys(avatarMap).map((avatarName, index) => (
+              <TouchableOpacity key={index} onPress={() => handleAvatarPress(avatarName)}>
+                <Image source={avatarMap[avatarName]} style={styles.avatarOption} />
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
       </Modal>
+      {alertVisible && (
+        <Alerts
+          type={alertType}
+          message={alertMessage}
+          onClose={() => setAlertVisible(false)}
+        />
+      )}
     </ScrollView>
   );
-}
+};
+
+export default PerfilPerruno;
 
 const styles = StyleSheet.create({
   container: {
@@ -183,17 +225,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 10,
   },
-  
   overlay: {
-    height: '75%', // Ajusta la altura del overlay
+    height: '75%',
     width: '85%',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     padding: 20,
     borderRadius: 10,
-    position: 'relative', // Posición relativa para poder posicionar el icono sobre el avatar
+    position: 'relative',
   },
   overlayKeyboardVisible: {
-    paddingTop: 100, // Ajusta el padding superior para dejar espacio para el teclado
+    paddingTop: 100,
   },
   avatarContainer: {
     alignItems: 'center',
@@ -206,10 +247,10 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     width: '100%',
-    height:'120%',
+    height: '120%',
   },
   infoContainerKeyboardVisible: {
-    marginTop: 'auto', // Desplaza los inputs hacia arriba cuando el teclado está visible
+    marginTop: 'auto',
   },
   input: {
     height: 40,
@@ -218,10 +259,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingHorizontal: 10,
     borderRadius: 5,
-    color: '#fff', // Color del texto en campos de entrada
+    color: '#fff',
   },
   inputFocused: {
-    borderColor: '#000', // Color del borde cuando el input está en foco
+    borderColor: '#000',
   },
   changeAvatarButton: {
     position: 'absolute',
@@ -261,5 +302,8 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 15,
     fontWeight: 'bold',
+  },
+  saveButtonDisabled: {
+    backgroundColor: '#ccc',
   },
 });

@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
-import { Text, View, ScrollView, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert,Image } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
-import ModalEdit from './Modals/ModalEdit'; // Ajusta la ruta según la estructura de tu proyecto
-import HorasComida from './HorasComida'; // Componente separado para horas de comida
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import ModalEdit from './Modals/ModalEdit'; 
+import ModalPet from './Modals/ModalPet'; 
+import HorasComida from './HorasComida';
 import { obtenerDatosUsuario } from '../Firebase/ConsultasFirebase';
-import Alerts from '../Alerts/Alerts'; // Ajusta la ruta según donde esté ubicado Alerts
+import Alerts from '../Alerts/Alerts'; 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default class Inicio extends Component {
@@ -14,48 +16,45 @@ export default class Inicio extends Component {
       nombre: '',
       apellidos: '',
       telefono: '',
-      email: '', // Agregar el email como parte del estado
+      email: '', 
     },
-    modalVisible: false,
+    modalEdit: false,
+    modalPet: false,
     alertType: null,
     alertMessage: null,
-    loadingUser: true, // Nuevo estado para indicar la carga de datos del usuario
-    refreshing: false, // Para indicar cuando se está actualizando los datos del usuario
+    loadingUser: true, 
+    refreshing: false, 
   };
+  Ia=() =>{
+    this.props.navigation.navigate('Chatbot');
+  }
 
   componentDidMount() {
     this.props.navigation.setOptions({
       title: 'Perfil de Usuario',
     });
-    this.loadUserData(); // Cargar los datos del usuario
+    this.loadUserData(); 
   }
 
-  // Función para cargar los datos del usuario desde AsyncStorage si están almacenados
   loadUserData = async () => {
     try {
-      // Intentar obtener los datos del usuario desde AsyncStorage
       const userDataJson = await AsyncStorage.getItem('userData');
       if (userDataJson) {
-        // Si se encuentran datos, convertirlos a objeto y establecerlos en el estado
         const userData = JSON.parse(userDataJson);
         this.setState({ user: userData, loadingUser: false });
       } else {
-        // Si no hay datos en AsyncStorage, cargarlos desde Firebase
         this.getUserData();
       }
     } catch (error) {
-      // En caso de error al cargar desde AsyncStorage, cargar desde Firebase
       this.getUserData();
     }
   };
 
-  // Función para obtener los datos del usuario desde Firebase
   getUserData = async () => {
     const { email } = this.props.route.params;
     try {
       const userData = await obtenerDatosUsuario(email);
       if (userData) {
-        // Almacenar los datos del usuario en AsyncStorage para futuras cargas
         await AsyncStorage.setItem('userData', JSON.stringify(userData));
         this.setState({ user: userData, loadingUser: false });
       } else {
@@ -67,11 +66,10 @@ export default class Inicio extends Component {
   };
 
   handleUpdateSuccess = (newData) => {
-    this.setState({ user: newData, modalVisible: false });
+    this.setState({ user: newData, modalEdit: false });
   };
 
   handleLogout = async () => {
-    // Mostrar una alerta de confirmación antes de proceder con el cierre de sesión
     Alert.alert(
       'Cerrar Sesión',
       '¿Estás seguro de que deseas cerrar sesión?',
@@ -84,9 +82,7 @@ export default class Inicio extends Component {
           text: 'Cerrar Sesión',
           onPress: async () => {
             try {
-              // Limpiar los datos de sesión
               await AsyncStorage.removeItem('userData');
-              // Navegar al componente de registro ('Registro')
               this.props.navigation.navigate('Registro');
             } catch (error) {
             }
@@ -99,16 +95,18 @@ export default class Inicio extends Component {
 
   showAlert = (type, message) => {
     this.setState({ alertType: type, alertMessage: message });
-    // Limpia la alerta después de 3 segundos
     setTimeout(() => {
       this.setState({ alertType: null, alertMessage: null });
     }, 3000);
   };
 
-  render() {
-    const { modalVisible, user, alertType, alertMessage, loadingUser } = this.state;
+  handlePetProfileNavigation = () => {
+    this.props.navigation.navigate('PerfilMascotas', { email: this.state.user.email });
+  };
 
-    // Mostrar un indicador de carga mientras se obtienen los datos del usuario
+  render() {
+    const { modalEdit, modalPet, user, alertType, alertMessage, loadingUser } = this.state;
+
     if (loadingUser) {
       return (
         <View style={styles.container}>
@@ -119,7 +117,6 @@ export default class Inicio extends Component {
 
     return (
       <View style={styles.container}>
-        {/* Header con linear gradient */}
         <LinearGradient colors={['#8B4513', '#FFFFFF', '#ADD8E6']} style={styles.gradient}>
           <View style={styles.headerContainer}>
             <View style={styles.headerContent}>
@@ -129,32 +126,47 @@ export default class Inicio extends Component {
               <Text style={styles.subheaderText}>Teléfono: {user.telefono}</Text>
             </View>
             <View style={styles.headerButtons}>
-              <TouchableOpacity style={styles.headerButton} onPress={() => this.setState({ modalVisible: true })}>
+              <TouchableOpacity style={styles.headerButton} onPress={() => this.setState({ modalEdit: true })}>
                 <SimpleLineIcons name="settings" size={24} color="#000" />
               </TouchableOpacity>
               <TouchableOpacity style={styles.headerButton} onPress={this.handleLogout}>
                 <SimpleLineIcons name="logout" size={24} color="#000" />
               </TouchableOpacity>
+              <TouchableOpacity style={styles.headerButton} onPress={() => this.setState({ modalPet: true })}>
+                <MaterialIcons name="pets" size={24} color="#000" />
+              </TouchableOpacity>
             </View>
           </View>
         </LinearGradient>
 
-        {/* Contenido principal */}
         <ScrollView contentContainerStyle={styles.scroll}>
-          {/* Componente de Horas de Comida */}
           <HorasComida emailUsuario={user.email} showAlert={this.showAlert} />
+          <View style={styles.containerIA}>
+          <Image source={require('../../images/Perritos.png')} style={styles.perrito1}></Image>
+          <TouchableOpacity style={styles.iaButton} onPress={this.Ia}>
+            <SimpleLineIcons name="magic-wand" size={24} style={styles.iaButtonIcon} />
+            <Text style={styles.iaButtonText}>   Pregúntale algo a la IA </Text>
+          </TouchableOpacity>
+          </View>
 
-          {/* Modal para editar datos */}
+
+
           <ModalEdit
-            visible={modalVisible}
-            onClose={() => this.setState({ modalVisible: false })}
+            visible={modalEdit}
+            onClose={() => this.setState({ modalEdit: false })}
             user={user}
             onUpdateSuccess={this.handleUpdateSuccess}
+          />
+          
+          <ModalPet
+            visible={modalPet}
+            onClose={() => this.setState({ modalPet: false })}
+            email={user.email}
+            navigation={this.props.navigation} // Pasar la navegación como prop
           />
 
         </ScrollView>
 
-        {/* Mostrar alerta si existe */}
         {alertType && alertMessage && (
           <Alerts type={alertType} message={alertMessage} onClose={() => this.setState({ alertType: null, alertMessage: null })} />
         )}
@@ -192,11 +204,12 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   headerButtons: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
+    margin: 10,
   },
   headerButton: {
-    paddingHorizontal: 10,
+    paddingVertical: 8,
   },
   scroll: {
     flexGrow: 1,
@@ -215,6 +228,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: -45,
+    
   },
   iaButtonText: {
     color: '#FFFFFF',
@@ -225,8 +239,8 @@ const styles = StyleSheet.create({
     color: 'blue',
   },
   perrito1: {
-    width: 300,
+    width: 300, 
     height: 140,
-    zIndex: -1,
+    zIndex:-1,
   },
 });

@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, TouchableOpacity, TextInput, StyleSheet, ScrollView, Keyboard } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native'; // Importa useNavigation
 import { guardarUsuario } from '../Firebase/RegistroFirebase';
 import Alerts, { ALERT_TYPES } from '../Alerts/Alerts';
-import Ionicons from 'react-native-vector-icons/Ionicons'; // Asegúrate de importar el icono adecuado
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default function UserRegistrationForm({ route }) {
-  const navigation = useNavigation();
+  const navigation = useNavigation(); // Obtiene el objeto de navegación
   const { email } = route.params;
   const [nombre, setNombre] = useState('');
   const [apellidos, setApellidos] = useState('');
   const [telefono, setTelefono] = useState('');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
-  const [focusedInput, setFocusedInput] = useState(null); // Estado para rastrear el input enfocado
+  const [focusedInput, setFocusedInput] = useState(null);
   const [alert, setAlert] = useState({ visible: false, type: '', message: '' });
 
   useEffect(() => {
@@ -40,21 +40,20 @@ export default function UserRegistrationForm({ route }) {
       alertMessage = 'El número de teléfono debe tener exactamente 10 dígitos y contener solo números.     ';
       alertType = ALERT_TYPES.ERROR;
     } else if (!validarNombreApellido(nombre) || !validarNombreApellido(apellidos)) {
-      alertMessage = 'El nombre y apellidos deben contener solo caracteres alfabéticos.    ';
+      alertMessage = 'El nombre y apellidos deben contener solo caracteres alfabéticos.     ';
       alertType = ALERT_TYPES.ERROR;
     } else {
       try {
         await guardarUsuario({ nombre, apellidos, telefono, email });
-        alertMessage = 'Información guardada exitosamente.   ';
+        alertMessage = 'Información guardada exitosamente.     ';
         alertType = ALERT_TYPES.EXIT;
 
         setTimeout(() => {
-          navigation.navigate('Menu', { email });
-        }, 2000); // Navegar después de 2 segundos
+          navigation.navigate('PerfilMascotas', { email }); // Redirigir a PerfilMascotas después de 2 segundos
+        }, 2000);
 
       } catch (error) {
-        console.error('Error al guardar los datos del usuario:    ', error);
-        alertMessage = 'Error al guardar los datos del usuario. Por favor, inténtalo de nuevo más tarde.    ';
+        alertMessage = 'Error al guardar los datos del usuario. Por favor, inténtalo de nuevo más tarde.';
         alertType = ALERT_TYPES.ERROR;
       }
     }
@@ -67,11 +66,11 @@ export default function UserRegistrationForm({ route }) {
   };
 
   const validarTelefono = (telefono) => {
-    return /^\d{10}$/.test(telefono); // Validar que el número de teléfono tenga exactamente 10 dígitos y solo números
+    return /^\d{10}$/.test(telefono);
   };
 
   const validarNombreApellido = (texto) => {
-    return /^[a-zA-Z\s ñ]+$/.test(texto); // Validar que solo contiene caracteres alfabéticos y espacios
+    return /^[a-zA-Z\s ñ]+$/.test(texto);
   };
 
   const handleInputFocus = (inputName) => {

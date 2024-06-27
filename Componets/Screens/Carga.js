@@ -3,7 +3,7 @@ import { View, ActivityIndicator, StyleSheet, ImageBackground, TouchableOpacity 
 import NetInfo from '@react-native-community/netinfo';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Alerts from './Componets/Alerts/Alerts'; // Importar componente Alerts
+import Alerts from '../Alerts/Alerts'; // Importar componente Alerts
 
 class Carga extends Component {
   constructor(props) {
@@ -27,7 +27,7 @@ class Carga extends Component {
 
       if (!state.isConnected) {
         // Establecer el mensaje de alerta si no hay conexión
-        this.setState({ alertMessage: 'No hay conexión a Internet.', loading: false });
+        this.setState({ alertMessage: 'No hay conexión a Internet.   ', loading: false });
       } else {
         // Verificar el estado de sesión guardado después de 3 segundos (simulado)
         setTimeout(() => {
@@ -35,10 +35,9 @@ class Carga extends Component {
         }, 3000); // Aquí esperamos 3 segundos antes de verificar la sesión
       }
     }).catch(error => {
-      console.log('Error al verificar la conexión:', error);
       this.setState({ isConnected: false, loading: false });
       // Mostrar mensaje de error si falla la verificación de conexión
-      this.setState({ alertMessage: 'Error al verificar la conexión.' });
+      this.setState({ alertMessage: 'Error al verificar la conexión.    ' });
     });
   };
 
@@ -81,7 +80,7 @@ class Carga extends Component {
 
     if (loading) {
       return (
-        <ImageBackground source={require('./images/Carga.jpeg')} style={styles.backgroundImage}>
+        <ImageBackground source={require('../../images/Carga.jpeg')} style={styles.backgroundImage}>
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#000000" />
           </View>
@@ -90,7 +89,7 @@ class Carga extends Component {
     }
 
     return (
-      <ImageBackground source={require('./images/Carga.jpeg')} style={styles.backgroundImage}>
+      <ImageBackground source={require('../../images/Carga.jpeg')} style={styles.backgroundImage}>
         <View style={styles.container}>
           {!isConnected && (
             <View style={styles.disconnectedContainer}>

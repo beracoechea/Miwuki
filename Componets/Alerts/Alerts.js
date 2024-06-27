@@ -35,7 +35,7 @@ const Alerts = ({ type, message, onClose }) => {
     // Oculta la alerta después de 3 segundos
     const timeout = setTimeout(() => {
       setVisible(false);
-      onClose(); // Llamar a la función onClose para limpiar la alerta desde ModalEdit
+      onClose();
     }, 3000);
 
     return () => clearTimeout(timeout); // Limpia el timeout al desmontar el componente

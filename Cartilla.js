@@ -10,7 +10,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import moment from 'moment';
 
 
-import avatarMap from './ImagenesPerros';
+import avatarMap from './Componets/TiposMascotas/ImagenesPerros';
 
 // Inicializa Firestore
 

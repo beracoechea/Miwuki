@@ -12,7 +12,7 @@ export const guardarMascota = async ({ email, tipoMascota, nombreMascota, pesoMa
     const usuarioRef = doc(firestore, 'Usuarios', email);
 
     // Obtener referencia al documento de la mascota utilizando el nombre de la mascota como ID
-    const mascotaRef = doc(collection(usuarioRef, 'Mascotas'), nombreMascota);
+    const mascotaRef = doc(collection(usuarioRef, 'Mascotas'));
 
     // Guardar los datos de la mascota en Firestore
     await setDoc(mascotaRef, {
@@ -25,7 +25,6 @@ export const guardarMascota = async ({ email, tipoMascota, nombreMascota, pesoMa
       sexo,
     });
 
-    console.log('Mascota registrada exitosamente en Firestore con nombre:', nombreMascota);
   } catch (error) {
     console.error('Error al guardar los datos de la mascota:', error);
     throw error;

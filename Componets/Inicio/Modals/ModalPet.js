@@ -1,14 +1,19 @@
 import React, { Component } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, Image, ActivityIndicator } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import avatarMap from '../../../ImagenesPerros'; // Ajusta la ruta según sea necesario
 import { obtenerMascotasUsuario } from '../../Firebase/ConsultasFirebase';
+
+// Importa todos los avatarMaps que necesites
+import avatarMapPerros from '../../TiposMascotas/ImagenesPerros';
+import avatarMapGatos from '../../TiposMascotas/ImagenesGatos';
+import avatarMapAves from '../../TiposMascotas/ImagenesAves';
+import avatarMapMamiferos from '../../TiposMascotas/ImagenesMamiferos';
 
 export default class ModalPet extends Component {
   state = {
     mascotas: [],
     loading: true,
-    error: null, // Agregamos un estado para manejar errores
+    error: null,
   };
 
   componentDidMount() {
@@ -18,17 +23,78 @@ export default class ModalPet extends Component {
   loadMascotas = async () => {
     const { email } = this.props;
     try {
-      const mascotas = await obtenerMascotasUsuario(email);
-      this.setState({ mascotas, loading: false, error: null });
+      // Inicializar las listas vacías
+      let mascotas = [];
+      
+      // Obtener todas las mascotas del usuario de cada tipo
+      const mascotasPerros = await obtenerMascotasUsuario(email, 'perros');
+      const mascotasGatos = await obtenerMascotasUsuario(email, 'gatos');
+      const mascotasAves = await obtenerMascotasUsuario(email, 'aves');
+      const mascotasMamiferos = await obtenerMascotasUsuario(email, 'mamiferos');
+  
+      // Filtrar y agregar solo las mascotas que el usuario tiene y que se están mostrando
+      mascotasPerros.forEach(mascota => {
+        if (mascota.tipoMascota === 'Perro') {
+          mascotas.push(mascota);
+        }
+      });
+  
+      mascotasGatos.forEach(mascota => {
+        if (mascota.tipoMascota === 'Gato') {
+          mascotas.push(mascota);
+        }
+      });
+  
+      mascotasAves.forEach(mascota => {
+        if (mascota.tipoMascota === 'Ave') {
+          mascotas.push(mascota);
+        }
+      });
+  
+      mascotasMamiferos.forEach(mascota => {
+        if (mascota.tipoMascota === 'Mamifero') {
+          mascotas.push(mascota);
+        }
+      });
+  
+      // Asignar claves únicas basadas en el id de cada mascota
+      const mascotasConClavesUnicas = mascotas.map((mascota) => ({
+        ...mascota,
+        key: mascota.id.toString(), // Usar id como clave única (convertido a string)
+      }));
+  
+      // Verificar cambios antes de actualizar el estado
+      if (mascotasConClavesUnicas.length !== this.state.mascotas.length) {
+        this.setState({ mascotas: mascotasConClavesUnicas, loading: false, error: null });
+      } else {
+        this.setState({ loading: false, error: null });
+      }
     } catch (error) {
       console.error('Error al obtener las mascotas:', error);
       this.setState({ loading: false, error });
     }
   };
+  
 
   handleAvatarPress = () => {
     const { navigation, email } = this.props;
     navigation.navigate('PerfilMascotas', { email });
+    this.props.onClose();
+  };
+
+  getAvatarMap = (tipoMascota) => {
+    switch (tipoMascota) {
+      case 'Perro':
+        return avatarMapPerros;
+      case 'Gato':
+        return avatarMapGatos;
+      case 'Ave':
+        return avatarMapAves;
+      case 'Mamifero':
+        return avatarMapMamiferos;
+      default:
+        return {}; // Retorna un objeto vacío si no se encuentra el tipo de mascota
+    }
   };
 
   render() {
@@ -87,13 +153,16 @@ export default class ModalPet extends Component {
             horizontal
             showsHorizontalScrollIndicator={false}
           >
-            {mascotas.map((mascota) => (
-              <TouchableOpacity key={mascota.id} style={styles.card}>
-                <Image source={avatarMap[mascota.avatar]} style={styles.avatar} />
-                <Text style={styles.cardText}>{mascota.nombreMascota}  </Text>
-              </TouchableOpacity>
-            ))}
-             <TouchableOpacity style={styles.addButton} onPress={this.handleAvatarPress}>
+            {mascotas.map((mascota) => {
+              const avatarMap = this.getAvatarMap(mascota.tipoMascota);
+              return (
+                <TouchableOpacity key={mascota.key} style={styles.card}>
+                  <Image source={avatarMap[mascota.avatar]} style={styles.avatar} />
+                  <Text style={styles.cardText}>{mascota.nombreMascota}  </Text>
+                </TouchableOpacity>
+              );
+            })}
+            <TouchableOpacity style={styles.addButton} onPress={this.handleAvatarPress}>
               <MaterialIcons name="add-circle-outline" size={50} color="#007bff" />
             </TouchableOpacity>
           </ScrollView>

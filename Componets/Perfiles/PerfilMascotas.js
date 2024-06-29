@@ -3,7 +3,8 @@ import { Text, View, Modal, TouchableOpacity, TextInput, StyleSheet, Image, Scro
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
-import avatarMap from '../../ImagenesPerros';
+import avatarMapPerros from '../TiposMascotas/ImagenesPerros'; 
+import avatarMapGatos from '../TiposMascotas/ImagenesGatos';  
 import { guardarMascota } from '../Firebase/RegistroFirebase';
 import { Picker } from '@react-native-picker/picker';
 import Alerts, { ALERT_TYPES } from '../Alerts/Alerts';
@@ -12,7 +13,6 @@ const PerfilPerruno = ({ route }) => {
   const navigation = useNavigation();
   const { email } = route.params;
 
-  // State para manejar los datos del formulario
   const [modalVisible, setModalVisible] = useState(false);
   const [avatar, setAvatar] = useState(require('../../images/Avatars/Aleatorio.jpg'));
   const [tipoMascota, setTipoMascota] = useState('Perro');
@@ -25,15 +25,11 @@ const PerfilPerruno = ({ route }) => {
   const [generoMascota, setGeneroMascota] = useState('');
   const [saveButtonDisabled, setSaveButtonDisabled] = useState(true);
 
-  // State para manejar alertas
   const [alertType, setAlertType] = useState(null);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertVisible, setAlertVisible] = useState(false);
-
-  // Estado temporal para el género seleccionado
   const [selectedGender, setSelectedGender] = useState(null);
 
-  // Efecto para detectar teclado visible
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
       setKeyboardVisible(true);
@@ -48,28 +44,24 @@ const PerfilPerruno = ({ route }) => {
     };
   }, []);
 
-  // Efecto para habilitar/deshabilitar el botón de guardar
   useEffect(() => {
     validateForm();
   }, [nombreMascota, pesoMascota, edadMascota, razaMascota, generoMascota, selectedAvatarName]);
 
-  // Función para validar el formulario antes de guardar
-  const validateForm = () => {
+  function validateForm() {
     const formIsValid = nombreMascota && pesoMascota && edadMascota && razaMascota && generoMascota && selectedAvatarName !== 'Aleatorio.jpg';
     setSaveButtonDisabled(!formIsValid);
-  };
+  }
 
-  // Función para manejar la selección de avatar
   const handleAvatarPress = (avatarName) => {
     setAvatar(avatarMap[avatarName]);
     setSelectedAvatarName(avatarName);
     setModalVisible(false);
   };
 
-  // Función para manejar el guardado de los datos de la mascota
   const handleSaveButtonPress = async () => {
     try {
-      validateForm(); // Validar antes de guardar
+      validateForm();
 
       if (saveButtonDisabled) {
         throw new Error('Por favor, completa todos los campos.');
@@ -96,11 +88,13 @@ const PerfilPerruno = ({ route }) => {
     }
   };
 
-  // Función para manejar la selección de género
   const handleGenderButtonPress = (gender) => {
-    setSelectedGender(gender); // Actualiza el estado temporal
-    setGeneroMascota(gender); // Actualiza el estado definitivo cuando se elija
+    setSelectedGender(gender);
+    setGeneroMascota(gender);
   };
+
+  // Mapa de avatares según el tipo de mascota seleccionado
+  const avatarMap = tipoMascota === 'Perro' ? avatarMapPerros : avatarMapGatos;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -117,20 +111,20 @@ const PerfilPerruno = ({ route }) => {
           </TouchableOpacity>
         </View>
         <View style={[styles.infoContainer, keyboardVisible && styles.infoContainerKeyboardVisible]}>
-          <Picker
-            selectedValue={tipoMascota}
-            style={styles.input}
-            onValueChange={(itemValue) => setTipoMascota(itemValue)}
-          >
-            <Picker.Item label="Perro" value="Perro" />
-            <Picker.Item label="Gato" value="Gato" />
-            <Picker.Item label="Conejo" value="Conejo" />
-            <Picker.Item label="Pájaro" value="Pájaro" />
-            <Picker.Item label="Tortuga" value="Tortuga" />
-            <Picker.Item label="Pez" value="Pez" />
-            <Picker.Item label="Uron" value="Uron" />
-
-          </Picker>
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={tipoMascota}
+              style={[styles.input, keyboardVisible && styles.inputFocused]}
+              onValueChange={(itemValue) => setTipoMascota(itemValue)}
+              mode="dropdown"
+            >
+              <Picker.Item label="Perro" value="Perro" />
+              <Picker.Item label="Gato" value="Gato" />
+              <Picker.Item label="Mamifero" value="Mamifero" />
+              <Picker.Item label="Ave" value="Ave" />
+            
+            </Picker>
+          </View>
           <TextInput
             style={[styles.input, keyboardVisible && styles.inputFocused]}
             placeholder="Nombre de la mascota"
@@ -251,6 +245,14 @@ const styles = StyleSheet.create({
   },
   infoContainerKeyboardVisible: {
     marginTop: 'auto',
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: 'gray',
+    borderRadius: 5,
+    marginBottom: 10,
+    overflow: 'hidden',
+    backgroundColor: 'transparent',
   },
   input: {
     height: 40,

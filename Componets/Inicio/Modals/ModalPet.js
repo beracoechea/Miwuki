@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, Image, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, Image } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { obtenerMascotasUsuario } from '../../Firebase/ConsultasFirebase';
+import Alerts, { ALERT_TYPES } from '../../Alerts/Alerts';
+import { obtenerMascotasUsuario, suscribirACambiosMascotas } from '../../Firebase/ConsultasFirebase';
+import AsyncStorageManager from '../../AsyncStorage/AsyncStorageManager';
+import LoadingModal from '../../Screens/LoadingModal';
 
-// Importa todos los avatarMaps que necesites
 import avatarMapPerros from '../../TiposMascotas/ImagenesPerros';
 import avatarMapGatos from '../../TiposMascotas/ImagenesGatos';
 import avatarMapAves from '../../TiposMascotas/ImagenesAves';
@@ -14,72 +16,101 @@ export default class ModalPet extends Component {
     mascotas: [],
     loading: true,
     error: null,
+    showAlert: false,
+    alertType: '',
+    alertMessage: '',
+    ultimaMascotaRegistrada: '',
+    usuarioId: '', // asegúrate de inicializar usuarioId si lo estás utilizando directamente
   };
 
   componentDidMount() {
-    this.loadMascotas();
+    const { email } = this.props;
+    this.setState({ usuarioId: email }, () => {
+      this.loadMascotas();
+      this.subscribeToChanges();
+    });
+  }
+
+  componentWillUnmount() {
+    if (this.unsubscribe) {
+      this.unsubscribe();
+    }
   }
 
   loadMascotas = async () => {
-    const { email } = this.props;
+    const { usuarioId } = this.state;
+
     try {
-      // Inicializar las listas vacías
-      let mascotas = [];
-      
-      // Obtener todas las mascotas del usuario de cada tipo
-      const mascotasPerros = await obtenerMascotasUsuario(email, 'perros');
-      const mascotasGatos = await obtenerMascotasUsuario(email, 'gatos');
-      const mascotasAves = await obtenerMascotasUsuario(email, 'aves');
-      const mascotasMamiferos = await obtenerMascotasUsuario(email, 'mamiferos');
-  
-      // Filtrar y agregar solo las mascotas que el usuario tiene y que se están mostrando
-      mascotasPerros.forEach(mascota => {
-        if (mascota.tipoMascota === 'Perro') {
-          mascotas.push(mascota);
-        }
-      });
-  
-      mascotasGatos.forEach(mascota => {
-        if (mascota.tipoMascota === 'Gato') {
-          mascotas.push(mascota);
-        }
-      });
-  
-      mascotasAves.forEach(mascota => {
-        if (mascota.tipoMascota === 'Ave') {
-          mascotas.push(mascota);
-        }
-      });
-  
-      mascotasMamiferos.forEach(mascota => {
-        if (mascota.tipoMascota === 'Mamifero') {
-          mascotas.push(mascota);
-        }
-      });
-  
-      // Asignar claves únicas basadas en el id de cada mascota
-      const mascotasConClavesUnicas = mascotas.map((mascota) => ({
-        ...mascota,
-        key: mascota.id.toString(), // Usar id como clave única (convertido a string)
-      }));
-  
-      // Verificar cambios antes de actualizar el estado
-      if (mascotasConClavesUnicas.length !== this.state.mascotas.length) {
-        this.setState({ mascotas: mascotasConClavesUnicas, loading: false, error: null });
+      let mascotasFromStorage = await AsyncStorageManager.getMascotas(usuarioId);
+
+      if (mascotasFromStorage && mascotasFromStorage.length > 0) {
+        this.setState({ mascotas: mascotasFromStorage, loading: false, error: null });
       } else {
-        this.setState({ loading: false, error: null });
+        const mascotas = await obtenerMascotasUsuario(usuarioId);
+        this.setState({ mascotas, loading: false, error: null });
+        await AsyncStorageManager.setMascotas(usuarioId, mascotas);
       }
     } catch (error) {
       console.error('Error al obtener las mascotas:', error);
       this.setState({ loading: false, error });
+      this.showAlert(ALERT_TYPES.ERROR, 'Error al cargar las mascotas. Intenta de nuevo más tarde.');
     }
   };
-  
+
+  subscribeToChanges = () => {
+    const { usuarioId } = this.state;
+    this.unsubscribe = suscribirACambiosMascotas(usuarioId, this.handleMascotaChange);
+  };
+
+  handleMascotaChange = async (change) => {
+    const { usuarioId, mascotas } = this.state;
+
+    switch (change.type) {
+      case 'added':
+        if (!mascotas.some(mascota => mascota.id === change.doc.id)) {
+          const nuevaMascota = { id: change.doc.id, ...change.doc.data() };
+          mascotas.push(nuevaMascota);
+          this.setState({
+            mascotas,
+            ultimaMascotaRegistrada: nuevaMascota.nombreMascota,
+          });
+          await AsyncStorageManager.setMascotas(usuarioId, mascotas);
+        }
+        break;
+      case 'modified':
+        const modifiedIndex = mascotas.findIndex((mascota) => mascota.id === change.doc.id);
+        if (modifiedIndex !== -1) {
+          mascotas[modifiedIndex] = { id: change.doc.id, ...change.doc.data() };
+          this.setState({ mascotas });
+          await AsyncStorageManager.setMascotas(usuarioId, mascotas);
+        }
+        break;
+      case 'removed':
+        const removedIndex = mascotas.findIndex((mascota) => mascota.id === change.doc.id);
+        if (removedIndex !== -1) {
+          mascotas.splice(removedIndex, 1);
+          this.setState({ mascotas });
+          await AsyncStorageManager.setMascotas(usuarioId, mascotas);
+        }
+        break;
+      default:
+        break;
+    }
+  };
+
+  showAlert = (type, message) => {
+    this.setState({
+      showAlert: true,
+      alertType: type,
+      alertMessage: message,
+    });
+  };
 
   handleAvatarPress = () => {
     const { navigation, email } = this.props;
     navigation.navigate('PerfilMascotas', { email });
-    this.props.onClose();
+      this.props.onClose();
+   
   };
 
   getAvatarMap = (tipoMascota) => {
@@ -93,72 +124,29 @@ export default class ModalPet extends Component {
       case 'Mamifero':
         return avatarMapMamiferos;
       default:
-        return {}; // Retorna un objeto vacío si no se encuentra el tipo de mascota
+        return {};
     }
   };
 
   render() {
     const { visible, onClose } = this.props;
-    const { mascotas, loading, error } = this.state;
-
-    if (loading) {
-      return (
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={visible}
-          onRequestClose={onClose}
-        >
-          <View style={styles.modalContainer}>
-            <ActivityIndicator size="large" color="#0000ff" alignItems="center" />
-          </View>
-        </Modal>
-      );
-    }
-
-    if (error) {
-      return (
-        <Modal
-          animationType="slide"
-          transparent={false}
-          visible={visible}
-          onRequestClose={onClose}
-        >
-          <View style={styles.modalContainer}>
-            <Text style={styles.errorText}>Error al cargar las mascotas</Text>
-            <TouchableOpacity style={styles.reloadButton} onPress={this.loadMascotas}>
-              <MaterialIcons name="refresh" size={24} color="#007bff" />
-              <Text style={styles.reloadText}>Intentar de nuevo</Text>
-            </TouchableOpacity>
-          </View>
-        </Modal>
-      );
-    }
+    const { mascotas, loading, showAlert, alertType, alertMessage, ultimaMascotaRegistrada } = this.state;
 
     return (
-      <Modal
-        animationType="slide"
-        transparent={false}
-        visible={visible}
-        onRequestClose={onClose}
-      >
+      <Modal animationType="slide" transparent={false} visible={visible} onRequestClose={onClose}>
         <View style={styles.modalContainer}>
           <View style={styles.header}>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
               <MaterialIcons name="close" size={24} color="#000" />
             </TouchableOpacity>
           </View>
-          <ScrollView
-            contentContainerStyle={styles.scrollContainer}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-          >
+          <ScrollView contentContainerStyle={styles.scrollContainer} horizontal showsHorizontalScrollIndicator={false}>
             {mascotas.map((mascota) => {
               const avatarMap = this.getAvatarMap(mascota.tipoMascota);
               return (
-                <TouchableOpacity key={mascota.key} style={styles.card}>
+                <TouchableOpacity key={mascota.id} style={styles.card}>
                   <Image source={avatarMap[mascota.avatar]} style={styles.avatar} />
-                  <Text style={styles.cardText}>{mascota.nombreMascota}  </Text>
+                  <Text style={styles.cardText}>{mascota.nombreMascota} </Text>
                 </TouchableOpacity>
               );
             })}
@@ -167,6 +155,11 @@ export default class ModalPet extends Component {
             </TouchableOpacity>
           </ScrollView>
         </View>
+        <View style={styles.infoContainer}>
+          <Text style={styles.infoText}>Última mascota registrada: {ultimaMascotaRegistrada}</Text>
+        </View>
+        {loading && <LoadingModal visible={loading} onClose={() => {}} />}
+        {showAlert && <Alerts type={alertType} message={alertMessage} onClose={() => this.setState({ showAlert: false })} />}
       </Modal>
     );
   }
@@ -219,25 +212,12 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     borderColor: '#007bff',
   },
-  errorText: {
-    fontSize: 18,
-    color: 'red',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  reloadButton: {
-    flexDirection: 'row',
+  infoContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
     paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: '#007bff',
   },
-  reloadText: {
+  infoText: {
     fontSize: 16,
-    color: '#007bff',
-    marginLeft: 10,
+    fontWeight: 'bold',
   },
 });

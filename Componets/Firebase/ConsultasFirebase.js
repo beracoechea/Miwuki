@@ -1,6 +1,6 @@
 // ConsultasFirebase.js
 
-import { getFirestore, doc, getDoc, updateDoc,getDocs,collection } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, updateDoc,getDocs,collection,query,onSnapshot } from 'firebase/firestore';
 import appFirebase from '../Firebase/credenciales';
 
 const firestore = getFirestore(appFirebase);
@@ -54,6 +54,20 @@ export async function obtenerMascotasUsuario(email) {
     throw error;
   }
 }
+export const suscribirACambiosMascotas = (email, callback) => {
+  const usuarioRef = doc(firestore, 'Usuarios', email);
+  const mascotasRef = collection(usuarioRef, 'Mascotas');
+
+  const q = query(mascotasRef);
+
+  return onSnapshot(q, (snapshot) => {
+    snapshot.docChanges().forEach((change) => {
+      if (change.type === 'added' || change.type === 'modified' || change.type === 'removed') {
+        callback(change);
+      }
+    });
+  });
+};
 
 
 // Puedes definir otras funciones de Firebase que necesites aquí

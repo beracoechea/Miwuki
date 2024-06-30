@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert,Image } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import ModalEdit from './Modals/ModalEdit'; 
-import ModalPet from './Modals/ModalPet'; 
+import ModalEdit from './Modals/ModalEdit';
+import ModalPet from './Modals/ModalPet';
 import HorasComida from './HorasComida';
 import { obtenerDatosUsuario } from '../Firebase/ConsultasFirebase';
-import Alerts from '../Alerts/Alerts'; 
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import Alerts from '../Alerts/Alerts';
+import AsyncStorageManager from '../AsyncStorage/AsyncStorageManager';
+import LoadingModal from '../Screens/LoadingModal';
 
 export default class Inicio extends Component {
   state = {
@@ -16,57 +17,62 @@ export default class Inicio extends Component {
       nombre: '',
       apellidos: '',
       telefono: '',
-      email: '', 
+      email: '',
     },
     modalEdit: false,
     modalPet: false,
     alertType: null,
     alertMessage: null,
-    loadingUser: true, 
-    refreshing: false, 
+    loadingUser: true,
+    refreshing: false,
   };
-  Ia=() =>{
-    this.props.navigation.navigate('Chatbot');
-  }
 
   componentDidMount() {
     this.props.navigation.setOptions({
       title: 'Perfil de Usuario',
     });
-    this.loadUserData(); 
+    this.loadUserData();
   }
 
   loadUserData = async () => {
     try {
-      const userDataJson = await AsyncStorage.getItem('userData');
-      if (userDataJson) {
-        const userData = JSON.parse(userDataJson);
+      const userData = await AsyncStorageManager.getUserData();
+      if (userData) {
         this.setState({ user: userData, loadingUser: false });
       } else {
-        this.getUserData();
+        this.getUserDataFromFirebase(); // Si no hay datos en AsyncStorage, obtenemos desde Firebase
       }
     } catch (error) {
-      this.getUserData();
+      console.error('Error loading user data:', error);
+      this.getUserDataFromFirebase(); // En caso de error, intentamos obtener desde Firebase
     }
   };
 
-  getUserData = async () => {
+  getUserDataFromFirebase = async () => {
     const { email } = this.props.route.params;
     try {
       const userData = await obtenerDatosUsuario(email);
       if (userData) {
-        await AsyncStorage.setItem('userData', JSON.stringify(userData));
+        await AsyncStorageManager.setUserData(userData); // Guardamos los datos en AsyncStorage
         this.setState({ user: userData, loadingUser: false });
       } else {
         this.setState({ loadingUser: false });
       }
     } catch (error) {
+      console.error('Error getting user data:', error);
       this.setState({ loadingUser: false });
     }
   };
 
-  handleUpdateSuccess = (newData) => {
-    this.setState({ user: newData, modalEdit: false });
+  handleUpdateSuccess = async (newData) => {
+    try {
+      this.setState({ user: newData, modalEdit: false });
+      await AsyncStorageManager.setUserData(newData); // Actualizamos los datos en AsyncStorage
+      this.showAlert('success', 'Datos actualizados correctamente.');
+    } catch (error) {
+      console.error('Error updating user data:', error);
+      this.showAlert('error', 'Hubo un error al actualizar los datos.');
+    }
   };
 
   handleLogout = async () => {
@@ -82,9 +88,10 @@ export default class Inicio extends Component {
           text: 'Cerrar Sesión',
           onPress: async () => {
             try {
-              await AsyncStorage.removeItem('userData');
+              await AsyncStorageManager.removeUserData();
               this.props.navigation.navigate('Registro');
             } catch (error) {
+              console.error('Error al cerrar sesión:', error);
             }
           },
         },
@@ -104,15 +111,16 @@ export default class Inicio extends Component {
     this.props.navigation.navigate('PerfilMascotas', { email: this.state.user.email });
   };
 
+  Ia = () => {
+    const { navigation } = this.props;
+    navigation.navigate('Chatbot'); // Reemplaza 'Chatbot' con el nombre de tu pantalla de chatbot
+  };
+
   render() {
     const { modalEdit, modalPet, user, alertType, alertMessage, loadingUser } = this.state;
 
     if (loadingUser) {
-      return (
-        <View style={styles.container}>
-          <ActivityIndicator size="large" color="#0000ff" />
-        </View>
-      );
+      return <LoadingModal visible={true} />;
     }
 
     return (
@@ -142,14 +150,15 @@ export default class Inicio extends Component {
         <ScrollView contentContainerStyle={styles.scroll}>
           <HorasComida emailUsuario={user.email} showAlert={this.showAlert} />
           <View style={styles.containerIA}>
-          <Image source={require('../../images/Perritos.png')} style={styles.perrito1}></Image>
-          <TouchableOpacity style={styles.iaButton} onPress={this.Ia}>
-            <SimpleLineIcons name="magic-wand" size={24} style={styles.iaButtonIcon} />
-            <Text style={styles.iaButtonText}>   Pregúntale algo a la IA </Text>
-          </TouchableOpacity>
+            <Image source={require('../../images/Perritos.png')} style={styles.perrito1}></Image>
+            <TouchableOpacity style={styles.iaButton} onPress={this.Ia}>
+              <SimpleLineIcons name="magic-wand" size={24} style={styles.iaButtonIcon} />
+              <Text style={styles.iaButtonText}>   Pregúntale algo a la IA </Text>
+            </TouchableOpacity>
           </View>
 
-
+          {/* Otro contenido de la aplicación */}
+          {/* Aquí puedes agregar más componentes y contenido según sea necesario */}
 
           <ModalEdit
             visible={modalEdit}
@@ -241,6 +250,6 @@ const styles = StyleSheet.create({
   perrito1: {
     width: 300, 
     height: 140,
-    zIndex:-1,
+    zIndex: -1,
   },
 });

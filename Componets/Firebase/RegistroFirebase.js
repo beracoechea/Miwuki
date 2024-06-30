@@ -1,10 +1,7 @@
-// Firebase.js
-import { getFirestore, doc, setDoc,collection } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { getFirestore, collection, doc, setDoc } from 'firebase/firestore';
 import appFirebase from './credenciales';
 
 const firestore = getFirestore(appFirebase);
-const auth = getAuth(appFirebase);
 
 export const guardarMascota = async ({ email, tipoMascota, nombreMascota, pesoMascota, edadMascota, razaMascota, avatar, sexo }) => {
   try {
@@ -30,6 +27,9 @@ export const guardarMascota = async ({ email, tipoMascota, nombreMascota, pesoMa
     throw error;
   }
 };
+
+
+
 export const guardarUsuario = async ({ nombre, apellidos, telefono, email }) => {
   try {
     const user = auth.currentUser;

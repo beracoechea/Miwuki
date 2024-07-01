@@ -17,6 +17,7 @@ import CaminoAdiestramiento from './CaminoAdiestramiento';
 import Chatbot from './Chatbot';
 import Mapa from './Mapa';
 import Cartilla from './Cartilla';
+import MascotaCard from './Componets/Inicio/Mascota/MascotaCard';
 
 import Basico from './Basico';
 import Avanzado from './Avanzado';
@@ -45,6 +46,7 @@ function App(): JSX.Element {
         <Stack.Screen name="Mapa" component={Mapa} options={{ headerShown: true }}/>
         <Stack.Screen name="Cartilla" component={Cartilla} options={{ headerShown:false }}/>
         <Stack.Screen name="Chatbot" component={Chatbot} options={{ headerShown: false }}/>
+        <Stack.Screen name="MascotaCard" component={MascotaCard} options={{headerShown:false}}/>
 
         <Stack.Screen name="Basico" component={Basico} options={{ headerShown: false }}/>
         <Stack.Screen name="Avanzado" component={Avanzado} options={{ headerShown: false }}/>

@@ -1,19 +1,57 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, ImageBackground, TouchableOpacity } from 'react-native';
-import AntDesign from 'react-native-vector-icons/AntDesign'; // Importa el ícono de FontAwesome
-
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default class Registro extends Component {
- 
-
-  handleInternalRegister = () => {
-    this.props.navigation.navigate('Signup');
-  };
-  handleInternalIniciar = () =>{
-    this.props.navigation.navigate('Ingresar');
+  constructor(props) {
+    super(props);
+    this.state = {
+      loading: true, // Estado de carga inicial
+    };
   }
 
+  async componentDidMount() {
+    try {
+      // Verificar si hay una sesión existente
+      const userData = await AsyncStorage.getItem('userData');
+      if (userData) {
+        const user = JSON.parse(userData);
+        if (user.email) {
+          // Log para verificar el email
+          // Navegar a 'Menu' con el email del usuario
+          this.props.navigation.navigate('Menu', { email: user.email });
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Error al obtener los datos del usuario:', error);
+    } finally {
+      this.setState({ loading: false }); // Finalizar la carga si no hay sesión
+    }
+  }
+
+  handleInternalRegister = () => {
+    console.log('Registro: handleInternalRegister');
+    this.props.navigation.navigate('Signup');
+  };
+
+  handleInternalIniciar = () => {
+    console.log('Registro: handleInternalIniciar');
+    this.props.navigation.navigate('Ingresar');
+  };
+
   render() {
+    if (this.state.loading) {
+      return (
+        <ImageBackground source={require('../../images/Fondo.jpeg')} style={styles.backgroundImage}>
+          <View style={styles.overlay}>
+            <Text style={styles.title}>Cargando...</Text>
+          </View>
+        </ImageBackground>
+      );
+    }
+
     return (
       <ImageBackground source={require('../../images/Fondo.jpeg')} style={styles.backgroundImage}>
         <View style={styles.overlay}>
@@ -21,12 +59,12 @@ export default class Registro extends Component {
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.buttonGoogle} onPress={this.handleInternalIniciar}>
               <AntDesign name="login" color="#FFF" size={25} style={styles.icon} />
-              <Text style={styles.buttonText}>Iniciar sesion  </Text>
+              <Text style={styles.buttonText}>Iniciar sesión </Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.buttonSignup} onPress={this.handleInternalRegister}>
               <AntDesign name="user" color="#FFF" size={25} style={styles.icon} />
-              <Text style={styles.buttonText}>Crear cuenta  </Text>
+              <Text style={styles.buttonText}>Crear cuenta </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -36,67 +74,56 @@ export default class Registro extends Component {
 }
 
 const styles = StyleSheet.create({
-    backgroundImage: {
-      flex: 1,
-      resizeMode: 'cover',
-      justifyContent: 'center',
-      alignItems: 'center',
-
-    },
-    overlay: {
-      flex: .70, // Hacer que el contenedor ocupe todo el espacio disponible
-      backgroundColor: 'rgba(0, 0, 0, 0.7)', // Fondo oscuro con opacidad
-      padding: 20,
-      borderRadius: 10,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    title: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      marginBottom: 20,
-      color: '#FFF', // Texto blanco
-    },
-    buttonContainer: {
-      width: '70%',
-      flex: .70, // Ajuste para que ocupe todo el espacio vertical disponible
-      justifyContent: 'center', // Alinea los botones en el centro vertical
-    },
-    buttonGoogle: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: 'green', 
-      paddingHorizontal: 15,
-      paddingVertical: 10,
-      marginBottom: 30,
-      borderRadius: 5,
-      elevation: 2, // Sombra
-    },
-    buttonFacebook: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: '#3b5998',
-      paddingHorizontal: 15,
-      paddingVertical: 10,
-      marginBottom: 30,
-      borderRadius: 5,
-      elevation: 2, // Sombra
-    },
-    buttonSignup: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: '#333', // Gris oscuro
-      paddingHorizontal: 15,
-      paddingVertical: 10,
-      marginBottom: 30,
-      borderRadius: 5,
-      elevation: 2, // Sombra
-    },
-    buttonText: {
-      color: '#FFF',
-      marginLeft: 10,
-    },
-    icon: {
-      marginRight: 10,
-    },
-  });
+  backgroundImage: {
+    flex: 1,
+    resizeMode: 'cover',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  overlay: {
+    flex: 0.7,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    padding: 20,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    color: '#FFF',
+  },
+  buttonContainer: {
+    width: '70%',
+    flex: 0.7,
+    justifyContent: 'center',
+  },
+  buttonGoogle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'green',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    marginBottom: 30,
+    borderRadius: 5,
+    elevation: 2,
+  },
+  buttonSignup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#333',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    marginBottom: 30,
+    borderRadius: 5,
+    elevation: 2,
+  },
+  buttonText: {
+    color: '#FFF',
+    marginLeft: 10,
+  },
+  icon: {
+    marginRight: 10,
+  },
+});

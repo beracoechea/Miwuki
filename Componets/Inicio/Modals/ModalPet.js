@@ -64,39 +64,41 @@ export default class ModalPet extends Component {
 
   handleMascotaChange = async (change) => {
     const { usuarioId, mascotas } = this.state;
-
+  
     switch (change.type) {
       case 'added':
         if (!mascotas.some(mascota => mascota.id === change.doc.id)) {
           const nuevaMascota = { id: change.doc.id, ...change.doc.data() };
-          mascotas.push(nuevaMascota);
-          this.setState({
-            mascotas,
+          const nuevasMascotas = [...mascotas, nuevaMascota]; // Crear un nuevo array con la nueva mascota
+          await AsyncStorageManager.setMascotas(usuarioId, nuevasMascotas); // Guardar en AsyncStorage antes de actualizar el estado
+          this.setState(prevState => ({
+            mascotas: nuevasMascotas,
             ultimaMascotaRegistrada: nuevaMascota.nombreMascota,
-          });
-          await AsyncStorageManager.setMascotas(usuarioId, mascotas);
+          }));
         }
         break;
       case 'modified':
         const modifiedIndex = mascotas.findIndex((mascota) => mascota.id === change.doc.id);
         if (modifiedIndex !== -1) {
-          mascotas[modifiedIndex] = { id: change.doc.id, ...change.doc.data() };
-          this.setState({ mascotas });
-          await AsyncStorageManager.setMascotas(usuarioId, mascotas);
+          const nuevasMascotas = [...mascotas]; // Crear un nuevo array para modificar la mascota
+          nuevasMascotas[modifiedIndex] = { id: change.doc.id, ...change.doc.data() };
+          await AsyncStorageManager.setMascotas(usuarioId, nuevasMascotas); // Guardar en AsyncStorage antes de actualizar el estado
+          this.setState({ mascotas: nuevasMascotas });
         }
         break;
       case 'removed':
         const removedIndex = mascotas.findIndex((mascota) => mascota.id === change.doc.id);
         if (removedIndex !== -1) {
-          mascotas.splice(removedIndex, 1);
-          this.setState({ mascotas });
-          await AsyncStorageManager.setMascotas(usuarioId, mascotas);
+          const nuevasMascotas = mascotas.filter((_, index) => index !== removedIndex); // Filtrar la mascota removida
+          await AsyncStorageManager.setMascotas(usuarioId, nuevasMascotas); // Guardar en AsyncStorage antes de actualizar el estado
+          this.setState({ mascotas: nuevasMascotas });
         }
         break;
       default:
         break;
     }
   };
+  
 
   showAlert = (type, message) => {
     this.setState({
@@ -112,6 +114,15 @@ export default class ModalPet extends Component {
       this.props.onClose();
    
   };
+
+  handleAvatarCard = (mascotaId) => {
+    const { navigation, email  } = this.props;
+    navigation.navigate('MascotaCard', { mascotaId ,email});
+    this.props.onClose();
+  };
+  
+  
+  
 
   getAvatarMap = (tipoMascota) => {
     switch (tipoMascota) {
@@ -130,7 +141,7 @@ export default class ModalPet extends Component {
 
   render() {
     const { visible, onClose } = this.props;
-    const { mascotas, loading, showAlert, alertType, alertMessage, ultimaMascotaRegistrada } = this.state;
+    const { mascotas, loading, showAlert, alertType, alertMessage } = this.state;
 
     return (
       <Modal animationType="slide" transparent={false} visible={visible} onRequestClose={onClose}>
@@ -144,19 +155,17 @@ export default class ModalPet extends Component {
             {mascotas.map((mascota) => {
               const avatarMap = this.getAvatarMap(mascota.tipoMascota);
               return (
-                <TouchableOpacity key={mascota.id} style={styles.card}>
-                  <Image source={avatarMap[mascota.avatar]} style={styles.avatar} />
-                  <Text style={styles.cardText}>{mascota.nombreMascota} </Text>
-                </TouchableOpacity>
+                <TouchableOpacity key={mascota.id} style={styles.card} onPress={() => this.handleAvatarCard(mascota.id)}>
+                <Image source={avatarMap[mascota.avatar]} style={styles.avatar} />
+                <Text style={styles.cardText}>{mascota.nombreMascota} </Text>
+              </TouchableOpacity>
+              
               );
             })}
             <TouchableOpacity style={styles.addButton} onPress={this.handleAvatarPress}>
               <MaterialIcons name="add-circle-outline" size={50} color="#007bff" />
             </TouchableOpacity>
           </ScrollView>
-        </View>
-        <View style={styles.infoContainer}>
-          <Text style={styles.infoText}>Última mascota registrada: {ultimaMascotaRegistrada}</Text>
         </View>
         {loading && <LoadingModal visible={loading} onClose={() => {}} />}
         {showAlert && <Alerts type={alertType} message={alertMessage} onClose={() => this.setState({ showAlert: false })} />}

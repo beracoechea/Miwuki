@@ -1,15 +1,23 @@
 import React, { Component } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+
 import ModalEdit from './Modals/ModalEdit';
 import ModalPet from './Modals/ModalPet';
-import HorasComida from './HorasComida';
-import { obtenerDatosUsuario } from '../Firebase/ConsultasFirebase';
-import Alerts from '../Alerts/Alerts';
-import AsyncStorageManager from '../AsyncStorage/AsyncStorageManager';
 import LoadingModal from '../Screens/LoadingModal';
+
+
+import HorasComida from './HorasComida';
+import Alerts from '../Alerts/Alerts';
+
+import { obtenerDatosUsuario } from '../Firebase/ConsultasFirebase';
+
+import AsyncStorageManager from '../AsyncStorage/AsyncStorageManager';
 
 export default class Inicio extends Component {
   state = {
@@ -135,10 +143,10 @@ export default class Inicio extends Component {
             </View>
             <View style={styles.headerButtons}>
               <TouchableOpacity style={styles.headerButton} onPress={() => this.setState({ modalEdit: true })}>
-                <SimpleLineIcons name="settings" size={24} color="#000" />
+                <FontAwesome5 name="user-edit" size={24} color="#000" />
               </TouchableOpacity>
               <TouchableOpacity style={styles.headerButton} onPress={this.handleLogout}>
-                <SimpleLineIcons name="logout" size={24} color="#000" />
+                <Ionicons name="log-out" size={24} color="#000" />
               </TouchableOpacity>
               <TouchableOpacity style={styles.headerButton} onPress={() => this.setState({ modalPet: true })}>
                 <MaterialIcons name="pets" size={24} color="#000" />

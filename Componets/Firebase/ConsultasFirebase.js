@@ -69,5 +69,21 @@ export const suscribirACambiosMascotas = (email, callback) => {
   });
 };
 
+export async function obtenerDatosMascotaPorId(emailUsuario, mascotaId) {
+  try {
+    const mascotaRef = doc(collection(firestore, 'Usuarios', emailUsuario, 'Mascotas'), mascotaId);
+    const mascotaDoc = await getDoc(mascotaRef);
+
+    if (mascotaDoc.exists()) {
+      return mascotaDoc.data();
+    } else {
+      throw new Error('No existe la mascota con el ID proporcionado.');
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
+
 
 // Puedes definir otras funciones de Firebase que necesites aquí

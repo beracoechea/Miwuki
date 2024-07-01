@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { View, ActivityIndicator, StyleSheet, ImageBackground, TouchableOpacity } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import Icon from 'react-native-vector-icons/Ionicons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Alerts from '../Alerts/Alerts'; // Importar componente Alerts
 
 class Carga extends Component {
@@ -27,17 +26,18 @@ class Carga extends Component {
 
       if (!state.isConnected) {
         // Establecer el mensaje de alerta si no hay conexión
-        this.setState({ alertMessage: 'No hay conexión a Internet.   ', loading: false });
+        this.setState({ alertMessage: 'No hay conexión a Internet.  ', loading: false });
       } else {
-        // Verificar el estado de sesión guardado después de 3 segundos (simulado)
+        // Simular tiempo de espera antes de continuar
         setTimeout(() => {
-          this.retrieveSessionState();
-        }, 3000); // Aquí esperamos 3 segundos antes de verificar la sesión
+          this.setState({ loading: false });
+          this.navigateToNextScreen();
+        }, 3000); // Aquí esperamos 3 segundos antes de continuar
       }
     }).catch(error => {
       this.setState({ isConnected: false, loading: false });
       // Mostrar mensaje de error si falla la verificación de conexión
-      this.setState({ alertMessage: 'Error al verificar la conexión.    ' });
+      this.setState({ alertMessage: 'Error al verificar la conexión.' });
     });
   };
 
@@ -45,34 +45,9 @@ class Carga extends Component {
     this.checkInternetConnection(); // Volver a intentar la conexión
   };
 
-  navigateToMenu = () => {
-    // Navegar a la pantalla 'Menu'
-    this.props.navigation.navigate('Menu');
-  };
-
-  navigateToRegistro = () => {
-    // Navegar a la pantalla 'Registro'
+  navigateToNextScreen = () => {
+    // Determina a qué pantalla navegar, por ejemplo, 'Registro'
     this.props.navigation.navigate('Registro');
-  };
-
-  retrieveSessionState = async () => {
-    try {
-      const isLoggedIn = await AsyncStorage.getItem('isLoggedIn');
-      if (isLoggedIn === 'true') {
-        // Si hay sesión activa guardada, navegar directamente a 'Menu'
-        this.navigateToMenu();
-      } else {
-        // Si no hay sesión activa guardada, continuar a 'Registro'
-        this.navigateToRegistro();
-      }
-    } catch (error) {
-      console.log('Error al recuperar el estado de sesión:', error.message);
-      // En caso de error, continuar a 'Registro'
-      this.navigateToRegistro();
-    } finally {
-      // Finalizar la carga una vez que se ha determinado la navegación
-      this.setState({ loading: false });
-    }
   };
 
   render() {
@@ -126,12 +101,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   disconnectedContainer: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    bottom: -250,
     padding: 10,
-    borderRadius: 5,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 50,
   },
 });
 

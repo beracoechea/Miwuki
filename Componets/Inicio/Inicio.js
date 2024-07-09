@@ -146,10 +146,10 @@ export default class Inicio extends Component {
                 <FontAwesome5 name="user-edit" size={24} color="#000" />
               </TouchableOpacity>
               <TouchableOpacity style={styles.headerButton} onPress={this.handleLogout}>
-                <Ionicons name="log-out" size={24} color="#000" />
+                <Ionicons name="log-out" size={30} color="#000" />
               </TouchableOpacity>
               <TouchableOpacity style={styles.headerButton} onPress={() => this.setState({ modalPet: true })}>
-                <MaterialIcons name="pets" size={24} color="#000" />
+                <MaterialIcons name="pets" size={26} color="#000" />
               </TouchableOpacity>
             </View>
           </View>

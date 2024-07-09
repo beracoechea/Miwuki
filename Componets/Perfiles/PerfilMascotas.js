@@ -25,6 +25,7 @@ const PerfilPerruno = ({ route }) => {
   const [selectedAvatarName, setSelectedAvatarName] = useState('Aleatorio.jpg');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [generoMascota, setGeneroMascota] = useState('');
+  const [tamañoEstatura, setTamañoEstatura] = useState('mediana'); // Ahora es una cadena
   const [saveButtonDisabled, setSaveButtonDisabled] = useState(true);
   const [selectedGender, setSelectedGender] = useState(null);
 
@@ -48,39 +49,40 @@ const PerfilPerruno = ({ route }) => {
 
   useEffect(() => {
     validateForm();
-  }, [nombreMascota, pesoMascota, edadMascota, razaMascota, generoMascota, selectedAvatarName]);
+  }, [nombreMascota, pesoMascota, edadMascota, razaMascota, generoMascota, selectedAvatarName, tamañoEstatura]);
 
   function validateForm() {
-    const formIsValid = nombreMascota && pesoMascota && edadMascota && razaMascota && generoMascota && selectedAvatarName !== 'Aleatorio.jpg';
+    const formIsValid = nombreMascota && pesoMascota && edadMascota && razaMascota && generoMascota && selectedAvatarName !== 'Aleatorio.jpg' && tamañoEstatura;
     setSaveButtonDisabled(!formIsValid);
   }
 
   const handleAvatarPress = (avatarName) => {
+    const avatarMap = getAvatarMap(tipoMascota);
     setAvatar(avatarMap[avatarName]);
     setSelectedAvatarName(avatarName);
     setModalVisible(false);
   };
 
   const handleSaveButtonPress = async () => {
-    console.log(email)
     try {
       if (saveButtonDisabled) {
         throw new Error('Por favor, completa todos los campos.');
       }
-  
+
       await guardarMascota({
         email,
         tipoMascota,
         nombreMascota,
-        pesoMascota,
-        edadMascota,
+        pesoMascota: parseInt(pesoMascota),
+        edadMascota: parseInt(edadMascota),
         razaMascota,
         avatar: selectedAvatarName,
         sexo: generoMascota,
+        tamaño: tamañoEstatura, // Ahora se envía como cadena
       });
-  
+
       navigation.navigate('Menu', { email });
-  
+
     } catch (error) {
       console.error('Error al guardar los datos de la mascota:', error);
       setAlertType(ALERT_TYPES.ERROR);
@@ -88,7 +90,6 @@ const PerfilPerruno = ({ route }) => {
       setAlertVisible(true);
     }
   };
-  
 
   const handleGenderButtonPress = (gender) => {
     setSelectedGender(gender);
@@ -97,33 +98,26 @@ const PerfilPerruno = ({ route }) => {
 
   const handleTipoMascotaChange = (itemValue) => {
     setTipoMascota(itemValue);
-    switch (itemValue) {
-      case 'Perro':
-        setAvatar(avatarMapPerros['Aleatorio.jpg']);
-        setSelectedAvatarName('Aleatorio.jpg');
-        break;
-      case 'Gato':
-        setAvatar(avatarMapGatos['Aleatorio.jpg']);
-        setSelectedAvatarName('Aleatorio.jpg');
-        break;
-      case 'Ave':
-        setAvatar(avatarMapAves['Aleatorio.jpg']);
-        setSelectedAvatarName('Aleatorio.jpg');
-        break;
-      case 'Mamifero':
-        setAvatar(avatarMapMamiferos['Aleatorio.jpg']);
-        setSelectedAvatarName('Aleatorio.jpg');
-        break;
-      default:
-        break;
-    }
+    const avatarMap = getAvatarMap(itemValue);
+    setAvatar(avatarMap['Aleatorio.jpg']);
+    setSelectedAvatarName('Aleatorio.jpg');
+    setTamañoEstatura('mediana'); // Resetear el tamaño de estatura cuando cambia el tipo de mascota
   };
 
-  // Mapa de avatares según el tipo de mascota seleccionado
-  const avatarMap = tipoMascota === 'Perro' ? avatarMapPerros :
-                   tipoMascota === 'Gato' ? avatarMapGatos :
-                   tipoMascota === 'Ave' ? avatarMapAves :
-                   avatarMapMamiferos;
+  const getAvatarMap = (tipo) => {
+    switch (tipo) {
+      case 'Perro':
+        return avatarMapPerros;
+      case 'Gato':
+        return avatarMapGatos;
+      case 'Ave':
+        return avatarMapAves;
+      case 'Mamifero':
+        return avatarMapMamiferos;
+      default:
+        return {};
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -179,6 +173,18 @@ const PerfilPerruno = ({ route }) => {
             value={razaMascota}
             onChangeText={setRazaMascota}
           />
+          {(tipoMascota === 'Perro' || tipoMascota === 'Gato') && (
+            <Picker
+              selectedValue={tamañoEstatura}
+              style={[styles.input, keyboardVisible && styles.inputFocused]}
+              onValueChange={(itemValue) => setTamañoEstatura(itemValue)}
+              mode="dropdown"
+            >
+              <Picker.Item label="Pequeña" value="pequeña" />
+              <Picker.Item label="Mediana" value="mediana" />
+              <Picker.Item label="Grande" value="grande" />
+            </Picker>
+          )}
           <View style={styles.genderContainer}>
             <TouchableOpacity onPress={() => handleGenderButtonPress('masculino')}>
               <MaterialCommunityIcons
@@ -214,9 +220,9 @@ const PerfilPerruno = ({ route }) => {
       >
         <View style={styles.modalBackground}>
           <ScrollView contentContainerStyle={styles.modalContainer} horizontal>
-            {Object.keys(avatarMap).map((avatarName, index) => (
+            {Object.keys(getAvatarMap(tipoMascota)).map((avatarName, index) => (
               <TouchableOpacity key={index} onPress={() => handleAvatarPress(avatarName)}>
-                <Image source={avatarMap[avatarName]} style={styles.avatarOption} />
+                <Image source={getAvatarMap(tipoMascota)[avatarName]} style={styles.avatarOption} />
               </TouchableOpacity>
             ))}
           </ScrollView>

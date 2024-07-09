@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { obtenerDatosMascotaPorId } from '../../Firebase/ConsultasFirebase';
 import LoadingModal from '../../Screens/LoadingModal';
-import avatarMapPerros from '../../TiposMascotas/ImagenesPerros';
-import avatarMapGatos from '../../TiposMascotas/ImagenesGatos';
-import avatarMapAves from '../../TiposMascotas/ImagenesAves';
-import avatarMapMamiferos from '../../TiposMascotas/ImagenesMamiferos';
+import ModalEditMascota from '../Modals/ModalEditMascota';
+import LinearGradient from 'react-native-linear-gradient'; 
+import Avatar from '../../TiposMascotas/Avatar';
+import Buttons from './Buttons';
+import Statistics from './Statistics';
 
 const MascotaCard = ({ route }) => {
   const { mascotaId, email } = route.params;
   const [datosMascota, setDatosMascota] = useState(null);
   const [showLoading, setShowLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [showStatistics, setShowStatistics] = useState(false);
 
   useEffect(() => {
-    const obtenerDatosMascota = async (emailUsuario, mascotaId) => {
+    const fetchDatosMascota = async (emailUsuario, mascotaId) => {
       try {
-        const datosMascota = await obtenerDatosMascotaPorId(emailUsuario, mascotaId);
-        setDatosMascota(datosMascota);
+        const datos = await obtenerDatosMascotaPorId(emailUsuario, mascotaId);
+        setDatosMascota(datos);
         setShowLoading(false);
       } catch (error) {
         console.error('Error al obtener los datos de la mascota:', error);
@@ -26,26 +29,36 @@ const MascotaCard = ({ route }) => {
       }
     };
 
-    obtenerDatosMascota(email, mascotaId);
+    fetchDatosMascota(email, mascotaId);
   }, [email, mascotaId]);
 
-  const getAvatar = (tipoMascota, avatarFileName) => {
-    switch (tipoMascota) {
-      case 'Perro':
-        return avatarMapPerros[avatarFileName];
-      case 'Gato':
-        return avatarMapGatos[avatarFileName];
-      case 'Ave':
-        return avatarMapAves[avatarFileName];
-      case 'Mamifero':
-        return avatarMapMamiferos[avatarFileName];
-      default:
-        return null; // Manejar caso por defecto si es necesario
+  const handleEdit = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleCloseModal = (updated) => {
+    setIsModalVisible(false);
+    if (updated) {
+      setShowLoading(true);
+      obtenerDatosMascotaPorId(email, mascotaId)
+        .then((datos) => {
+          setDatosMascota(datos);
+          setShowLoading(false);
+        })
+        .catch((error) => {
+          console.error('Error al obtener los datos de la mascota:', error);
+          setError(error);
+          setShowLoading(false);
+        });
     }
   };
 
+  const handleToggleStatistics = () => {
+    setShowStatistics(!showStatistics);
+  };
+
   if (showLoading) {
-    return <LoadingModal visible={showLoading} onClose={() => {}} />;
+    return <LoadingModal visible={showLoading} onClose={() => setShowLoading(false)} />;
   }
 
   if (error) {
@@ -57,23 +70,44 @@ const MascotaCard = ({ route }) => {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.card}>
-        <View style={styles.avatarContainer}>
-          <Image source={getAvatar(datosMascota.tipoMascota, datosMascota.avatar)} style={styles.avatar} />
+    <LinearGradient colors={['#8B4513', '#FFFFFF', '#ADD8E6']} style={styles.container}>
+      <ScrollView contentContainerStyle={styles.cardContainer}>
+        <View style={styles.card}>
+          <View style={styles.cardContent}>
+            <Avatar datosMascota={datosMascota} />
+            <View style={styles.infoContainer}>
+              <Text style={styles.nameText}>{datosMascota.nombreMascota} </Text>
+
+              <View style={styles.column}>
+                <View style={styles.row}>
+                  <Text style={styles.text}>Peso: {String(datosMascota.pesoMascota)} kg </Text>
+                  <Text style={styles.text}>Edad: {String(datosMascota.edadMascota)} años </Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.text}>Raza: {datosMascota.razaMascota} </Text>
+                  {datosMascota.tipoMascota === 'Perro' || datosMascota.tipoMascota === 'Gato' ? (
+                    <Text style={styles.text}>Tamaño: {datosMascota.tamaño} </Text>
+                  ) : null}
+                </View>
+              </View>
+            </View>
+            <Buttons
+              handleEdit={handleEdit}
+              handleToggleStatistics={handleToggleStatistics}
+              showStatistics={showStatistics}
+            />
+          </View>
+          {showStatistics && <Statistics datosMascota={datosMascota} />}
         </View>
-        <View style={styles.infoContainer}>
-          <Text style={styles.text}>Nombre: {datosMascota.nombreMascota} </Text>
-          <Text style={styles.text}>Peso: {datosMascota.pesoMascota} kg </Text>
-          <Text style={styles.text}>Edad: {datosMascota.edadMascota} años </Text>
-          <Text style={styles.text}>Sexo: {datosMascota.sexo} </Text>
-          <Text style={styles.text}>Raza: {datosMascota.razaMascota} </Text>
-        </View>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Editar</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+      </ScrollView>
+      <ModalEditMascota
+        visible={isModalVisible}
+        onClose={handleCloseModal}
+        datosMascota={datosMascota}
+        email={email}
+        mascotaId={mascotaId}
+      />
+    </LinearGradient>
   );
 };
 
@@ -84,49 +118,50 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#ADD8E6',
   },
+  cardContainer: {
+    alignItems: 'center',
+    paddingVertical: '50%',
+    width: '130%',
+  },
   card: {
-    width: '80%',
+    width: '90%',
     backgroundColor: '#FFFFFF',
     borderRadius: 10,
     padding: 20,
     alignItems: 'center',
-    elevation: 3, // Efecto de sombra para Android
-    shadowColor: '#000', // Efecto de sombra para iOS
+    elevation: 30,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
+    shadowOpacity: 0.5,
     shadowRadius: 2,
   },
-  avatarContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#8B4513',
+  cardContent: {
     alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  avatar: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 60,
   },
   infoContainer: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     marginBottom: 20,
   },
-  text: {
+  nameText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#000',
     marginBottom: 10,
-    color:'#000',
   },
-  button: {
-    backgroundColor: '#8B4513',
-    padding: 10,
-    borderRadius: 5,
+  column: {
+    flexDirection: 'column',
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  buttonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '70%',
+    marginBottom: 10,
+  },
+  text: {
+    color: '#000',
+    marginLeft: 5,
   },
 });
 

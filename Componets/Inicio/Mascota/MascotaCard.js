@@ -8,6 +8,9 @@ import Avatar from '../../TiposMascotas/Avatar';
 import Buttons from './Buttons';
 import Statistics from './Statistics';
 
+import { useNavigation } from '@react-navigation/native';
+
+
 const MascotaCard = ({ route }) => {
   const { mascotaId, email } = route.params;
   const [datosMascota, setDatosMascota] = useState(null);
@@ -15,6 +18,7 @@ const MascotaCard = ({ route }) => {
   const [error, setError] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [showStatistics, setShowStatistics] = useState(false);
+  const navigation = useNavigation(); // Obtiene la instancia de navegación
 
   useEffect(() => {
     const fetchDatosMascota = async (emailUsuario, mascotaId) => {
@@ -57,6 +61,11 @@ const MascotaCard = ({ route }) => {
     setShowStatistics(!showStatistics);
   };
 
+  const handleCartilla = () => {
+    // Navegar a la vista de Cartilla Médica y pasar el ID de la mascota como parámetro
+    navigation.navigate('Cartilla', { mascotaId: mascotaId, email: email });
+  };
+
   if (showLoading) {
     return <LoadingModal visible={showLoading} onClose={() => setShowLoading(false)} />;
   }
@@ -93,8 +102,10 @@ const MascotaCard = ({ route }) => {
             </View>
             <Buttons
               handleEdit={handleEdit}
+              handleCartilla={handleCartilla}
               handleToggleStatistics={handleToggleStatistics}
               showStatistics={showStatistics}
+              tipoMascota={datosMascota.tipoMascota} // Pasamos el tipo de mascota para decidir la visibilidad del botón
             />
           </View>
           {showStatistics && <Statistics datosMascota={datosMascota} />}

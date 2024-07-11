@@ -9,7 +9,6 @@ const ModalEditMascota = ({ visible, onClose, datosMascota, email, mascotaId }) 
   const [pesoMascota, setPesoMascota] = useState(0); // Inicializado como número entero
   const [razaMascota, setRazaMascota] = useState('');
   const [edadMascota, setEdadMascota] = useState(0); // Inicializado como número entero
-  const [estatura, setEstatura] = useState(0); // Inicializado como número entero
   const [alertType, setAlertType] = useState(null);
   const [alertMessage, setAlertMessage] = useState('');
   const [showModal, setShowModal] = useState(visible); // Estado para controlar la visibilidad del modal
@@ -44,10 +43,8 @@ const ModalEditMascota = ({ visible, onClose, datosMascota, email, mascotaId }) 
       return;
     }
 
-    // Validación de peso, edad y estatura para asegurar que solo contengan números
     const pesoRegex = /^[0-9]*$/;
     const edadRegex = /^[0-9]*$/;
-    const estaturaRegex = /^[0-9]*$/;
 
     if (!pesoRegex.test(pesoMascota.toString())) {
       setAlertType(ALERT_TYPES.ERROR);
@@ -79,7 +76,6 @@ const ModalEditMascota = ({ visible, onClose, datosMascota, email, mascotaId }) 
         pesoMascota,
         razaMascota,
         edadMascota,
-        estatura,
       });
       setAlertType(ALERT_TYPES.EXIT);
       setAlertMessage('Datos actualizados. ');

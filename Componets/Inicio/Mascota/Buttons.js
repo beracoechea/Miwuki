@@ -1,42 +1,57 @@
-import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
-import AntDesign from 'react-native-vector-icons/AntDesign';
+// Buttons.js
 
-const Buttons = ({ handleEdit, handleToggleStatistics, showStatistics }) => {
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+
+const Buttons = ({ handleEdit, handleCartilla, handleToggleStatistics, showStatistics, tipoMascota }) => {
   return (
-    <>
+    <View style={styles.buttonContainer}>
       <TouchableOpacity style={[styles.button, styles.editButton]} onPress={handleEdit}>
         <Text style={styles.buttonText}>Editar</Text>
-        <AntDesign name="edit" size={24} color="#fff" />
       </TouchableOpacity>
-      <TouchableOpacity style={[styles.button, styles.statsButton]} onPress={handleToggleStatistics}>
-        <Text style={styles.buttonText}>{showStatistics ? 'Ocultar Estadísticas' : 'Mostrar Estadísticas'}</Text>
-        <AntDesign name="linechart" size={24} color="#fff" />
+      {tipoMascota !== 'Ave' && ( // Mostrar el botón de Cartilla Médica solo si el tipo de mascota no es Ave
+        <TouchableOpacity style={[styles.button, styles.cartillaButton]} onPress={handleCartilla}>
+          <Text style={styles.buttonText}>Cartilla Médica</Text>
+        </TouchableOpacity>
+      )}
+      <TouchableOpacity style={[styles.button, styles.statisticsButton]} onPress={handleToggleStatistics}>
+        <Text style={styles.buttonText}>{showStatistics ? 'Ocultar Recomendaciones ' : 'Recomendaciones '}</Text>
       </TouchableOpacity>
-    </>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  button: {
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
+  buttonContainer: {
+    flexDirection: 'column',
+    justifyContent: 'space-around',
+    marginTop: 20,
     width: '80%',
-    flexDirection: 'row',
+  },
+  button: {
+    marginBottom:10,
+
+    borderRadius: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
-  },
-  editButton: {
-    backgroundColor: '#8B4513',
-  },
-  statsButton: {
-    backgroundColor: '#4682B4',
+    flex: 1,
+    marginHorizontal: 5,
   },
   buttonText: {
-    color: '#FFF',
+    color: '#FFFFFF',
     fontWeight: 'bold',
-    marginRight: '25%',
+    fontSize: 16,
+  },
+  editButton: {
+    backgroundColor: '#8B4513', // Color para Editar
+  },
+  cartillaButton: {
+    backgroundColor: '#4682B4', // Color para Cartilla Médica
+  },
+  statisticsButton: {
+    backgroundColor: '#3CB371', // Color para Estadísticas
   },
 });
 

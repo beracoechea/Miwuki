@@ -2,8 +2,35 @@ import { getFirestore, doc, setDoc, collection } from 'firebase/firestore';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'; // Importa los métodos necesarios de auth
 import appFirebase from './credenciales';
 
+
 const firestore = getFirestore(appFirebase);
 const auth = getAuth(appFirebase); // Obtén el servicio de autenticación
+
+
+export const registrarVacuna = async ({ email, mascotaId, nombre, dosis }) => {
+  try {
+    // Referencia al documento de la mascota dentro de la colección del usuario
+    const mascotaRef = doc(firestore, 'Usuarios', email, 'Mascotas', mascotaId);
+
+    // Subcolección de vacunas dentro del documento de la mascota
+    const vacunasCollectionRef = collection(mascotaRef, 'Vacunas');
+
+    // Generar un ID automático para la nueva vacuna
+    const nuevaVacunaRef = doc(vacunasCollectionRef);
+
+    // Guardar los datos de la vacuna en Firestore
+    await setDoc(nuevaVacunaRef, {
+      fechaAplicacion: new Date().toISOString(),
+      nombre,
+      dosis,
+    });
+
+    console.log('Vacuna registrada exitosamente en Firestore');
+  } catch (error) {
+    console.error('Error al registrar la vacuna en Firestore:', error);
+    throw error;
+  }
+};
 
 export const guardarMascota = async ({ email, tipoMascota, nombreMascota, pesoMascota, edadMascota, razaMascota, avatar, sexo, tamaño }) => {
   try {

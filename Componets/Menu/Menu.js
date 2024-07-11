@@ -6,8 +6,6 @@ import Inicio from '../Inicio/Inicio';
 import Chatbot from '../../Chatbot';
 import CaminoAdiestramiento from '../../CaminoAdiestramiento';
 import Mapa from '../../Mapa';
-import Cartilla from '../../Cartilla';
-
 const Tab = createBottomTabNavigator();
 
 export default class Menu extends Component {
@@ -36,8 +34,6 @@ export default class Menu extends Component {
               iconName = focused ? 'tennis-ball' : 'tennis-ball';
             } else if (route.name === 'Mapa') {
               iconName = focused ? 'google-maps' : 'google-maps';
-            } else if (route.name === 'Cartilla') {
-              iconName = focused ? 'notebook-check' : 'notebook-check';
             }
 
             return <MaterialCommunityIcons name={iconName} color={color} size={size} />;
@@ -63,17 +59,6 @@ export default class Menu extends Component {
         >
           {(props) => <Inicio {...props} email={email} />}
         </Tab.Screen>
-
-        <Tab.Screen
-              name="Cartilla"
-              initialParams={{ email}}
-              options={{
-                tabBarLabel: 'Cartilla',
-                headerShown: false,
-              }}
-            >
-               {(props) => <Cartilla {...props} email={email} />}
-            </Tab.Screen>
 
         <Tab.Screen
           name="Chatbot"

@@ -117,6 +117,37 @@ export const suscribirACambiosVacunas = (emailUsuario, mascotaId, callback) => {
   });
 };
 
+export async function obtenerOperacionesMascota(emailUsuario, mascotaId) {
+  try {
+    const operacionesRef = collection(firestore, 'Usuarios', emailUsuario, 'Mascotas', mascotaId, 'Operaciones');
+    const operacionesSnapshot = await getDocs(operacionesRef);
 
+    const operaciones = [];
+    operacionesSnapshot.forEach((doc) => {
+      operaciones.push({
+        id: doc.id,
+        ...doc.data(),
+      });
+    });
+
+    return operaciones;
+  } catch (error) {
+    throw error; // Propaga el error para manejarlo en el componente que llama a esta función
+  }
+}
+
+// Función para suscribirse a cambios en las operaciones de una mascota
+export const suscribirACambiosOperaciones = (emailUsuario, mascotaId, callback) => {
+  const operacionesRef = collection(firestore, 'Usuarios', emailUsuario, 'Mascotas', mascotaId, 'Operaciones');
+  const q = query(operacionesRef);
+
+  return onSnapshot(q, (snapshot) => {
+    snapshot.docChanges().forEach((change) => {
+      if (change.type === 'added' || change.type === 'modified' || change.type === 'removed') {
+        callback(change);
+      }
+    });
+  });
+};
 
 // Puedes definir otras funciones de Firebase que necesites aquí

@@ -1,31 +1,34 @@
 import React, { useState } from 'react';
 import { View, Modal, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
-import { registrarVacuna } from '../../Firebase/RegistroFirebase';
+import { registrarOperacion } from '../../Firebase/RegistroFirebase'; // Asegúrate de implementar esta función en tu archivo de Firebase
 import Alerts, { ALERT_TYPES } from '../../Alerts/Alerts';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
-const RegistroVacunaModal = ({ email, mascotaId, visible, onClose, onSuccess }) => {
-  const [nombreVacuna, setNombreVacuna] = useState('');
-  const [dosis, setDosis] = useState('');
+const RegistroOperacionModal = ({ email, mascotaId, visible, onClose, onSuccess }) => {
+  const [fecha, setFecha] = useState('');
+  const [detalles, setDetalles] = useState('');
+  const [tratamientos, setTratamientos] = useState('');
   const [showAlert, setShowAlert] = useState(false);
   const [alertType, setAlertType] = useState(ALERT_TYPES.ERROR);
   const [alertMessage, setAlertMessage] = useState('');
 
-  const handleAgregarVacuna = async () => {
+  const handleAgregarOperacion = async () => {
     try {
-      if (!nombreVacuna || !dosis) {
-        throw new Error('Por favor completa todos los campos.   ');
+      if (!fecha || !detalles) {
+        throw new Error('Por favor completa todos los campos.    ');
       }
 
-      if (!/^\d+$/.test(dosis)) {
-        throw new Error('La dosis debe ser un valor numérico.   ');
+      // Validar que la fecha contenga solo números y tenga 8 caracteres (DDMMYYYY)
+      if (!/^\d{8}$/.test(fecha)) {
+        throw new Error('La fecha debe estar en el formato DDMMYYYY.    ');
       }
 
-      await registrarVacuna({
+      await registrarOperacion({
         email,
         mascotaId,
-        nombre: nombreVacuna,
-        dosis: parseInt(dosis),
+        fecha, // La fecha ya está en formato DDMMYYYY
+        detalles,
+        tratamientos: tratamientos || '',
       });
 
       if (onSuccess) {
@@ -33,8 +36,9 @@ const RegistroVacunaModal = ({ email, mascotaId, visible, onClose, onSuccess }) 
       }
 
       onClose();
-      setNombreVacuna('');
-      setDosis('');
+      setFecha('');
+      setDetalles('');
+      setTratamientos('');
     } catch (error) {
       setAlertType(ALERT_TYPES.ERROR);
       setAlertMessage(error.message);
@@ -46,34 +50,48 @@ const RegistroVacunaModal = ({ email, mascotaId, visible, onClose, onSuccess }) 
     setShowAlert(false);
   };
 
+  // Filtrar la entrada para permitir solo números
+  const handleFechaChange = (text) => {
+    const numericText = text.replace(/[^0-9]/g, ''); // Remueve cualquier carácter que no sea numérico
+    setFecha(numericText);
+  };
+
   return (
     <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Agregar Vacuna</Text>
+          <Text style={styles.modalTitle}>Agregar Operación</Text>
           <TextInput
             style={styles.input}
-            placeholder="Nombre de la vacuna"
+            placeholder="Fecha (DDMMYYYY)"
             placeholderTextColor="#8B4513"
-            value={nombreVacuna}
-            onChangeText={(text) => setNombreVacuna(text)}
+            value={fecha}
+            onChangeText={handleFechaChange}
+            keyboardType="numeric" // Mostrar solo teclado numérico
+            maxLength={8} // Limitar la entrada a 8 caracteres
           />
           <TextInput
             style={styles.input}
-            placeholder="Dosis"
+            placeholder="Detalles de la cirugía"
             placeholderTextColor="#8B4513"
-            value={dosis}
-            onChangeText={(text) => setDosis(text)}
-            keyboardType="numeric"
+            value={detalles}
+            onChangeText={(text) => setDetalles(text)}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Tratamientos post-operación (opcional)"
+            placeholderTextColor="#8B4513"
+            value={tratamientos}
+            onChangeText={(text) => setTratamientos(text)}
           />
           <View style={styles.buttonGroup}>
-            <TouchableOpacity style={styles.buttonContainer} onPress={handleAgregarVacuna}>
+            <TouchableOpacity style={styles.buttonContainer} onPress={handleAgregarOperacion}>
               <FontAwesome5 name="save" size={18} color="#FFFFFF" style={styles.buttonIcon} />
-              <Text style={styles.buttonText}>Guardar Vacuna</Text>
+              <Text style={styles.buttonText}>Guardar Operación</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-            <FontAwesome5 name="times" size={18} color="#fff" style={styles.buttonIcon} />
-            <Text style={styles.buttonText}>Cancelar</Text>
+              <FontAwesome5 name="times" size={18} color="#fff" style={styles.buttonIcon} />
+              <Text style={styles.buttonText}>Cancelar</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -156,4 +174,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RegistroVacunaModal;
+export default RegistroOperacionModal;

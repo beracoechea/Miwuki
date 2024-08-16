@@ -32,6 +32,33 @@ export const registrarVacuna = async ({ email, mascotaId, nombre, dosis }) => {
   }
 };
 
+export const registrarOperacion = async ({ email, mascotaId, fecha, detalles, tratamientos }) => {
+  try {
+    // Referencia al documento de la mascota dentro de la colección del usuario
+    const mascotaRef = doc(firestore, 'Usuarios', email, 'Mascotas', mascotaId);
+
+    // Subcolección de operaciones dentro del documento de la mascota
+    const operacionesCollectionRef = collection(mascotaRef, 'Operaciones');
+
+    // Generar un ID automático para la nueva operación
+    const nuevaOperacionRef = doc(operacionesCollectionRef);
+
+    // Guardar los datos de la operación en Firestore
+    await setDoc(nuevaOperacionRef, {
+      fecha,
+      detalles,
+      tratamientos,
+      fechaRegistro: new Date().toISOString(), // Fecha de registro para la operación
+    });
+
+    console.log('Operación registrada exitosamente en Firestore');
+  } catch (error) {
+    console.error('Error al registrar la operación en Firestore:', error);
+    throw error;
+  }
+};
+
+
 export const guardarMascota = async ({ email, tipoMascota, nombreMascota, pesoMascota, edadMascota, razaMascota, avatar, sexo, tamaño }) => {
   try {
     // Obtener referencia al documento del usuario

@@ -14,9 +14,9 @@ import PerfilUsuario from './Componets/Perfiles/PerfilUsuario';
 import Menu from './Componets/Menu/Menu';
 import Inicio from './Componets/Inicio/Inicio';
 import CaminoAdiestramiento from './CaminoAdiestramiento';
-import Chatbot from './Chatbot';
+import Chatbot from './Componets/ChatBot/Chatbot';
 import Mapa from './Mapa';
-import Cartilla from './Componets/Inicio/Mascota/Cartilla';
+import Cartilla from './Componets/Cartilla/Cartilla';
 import MascotaCard from './Componets/Inicio/Mascota/MascotaCard';
 
 import Basico from './Basico';

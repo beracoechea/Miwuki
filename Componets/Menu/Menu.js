@@ -3,7 +3,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import Inicio from '../Inicio/Inicio';
-import Chatbot from '../../Chatbot';
+import Chatbot from '../../Componets/ChatBot/Chatbot';
 import CaminoAdiestramiento from '../../CaminoAdiestramiento';
 import Mapa from '../../Mapa';
 const Tab = createBottomTabNavigator();

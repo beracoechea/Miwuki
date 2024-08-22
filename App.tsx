@@ -13,17 +13,13 @@ import PerfilUsuario from './Componets/Perfiles/PerfilUsuario';
 
 import Menu from './Componets/Menu/Menu';
 import Inicio from './Componets/Inicio/Inicio';
-import CaminoAdiestramiento from './CaminoAdiestramiento';
 import Chatbot from './Componets/ChatBot/Chatbot';
-import Mapa from './Mapa';
+import Mapa from './Componets/Maps/Mapa';
 import Cartilla from './Componets/Cartilla/Cartilla';
 import MascotaCard from './Componets/Inicio/Mascota/MascotaCard';
+import Citas from './Componets/Citas/Citas';
 
-import Basico from './Basico';
-import Avanzado from './Avanzado';
-import Conducta from './Conducta';
-import Deportivo from './Deportivo';
-import Cachorros from './Cachorros';
+
 
 
 const Stack = createStackNavigator();
@@ -42,20 +38,11 @@ function App(): JSX.Element {
         
         <Stack.Screen name="Menu" component={Menu} options={{ headerShown: false }}/>
         <Stack.Screen name="Inicio" component={Inicio} options={{ headerShown: false }}/>
-        <Stack.Screen name="CaminoAdiestramiento" component={CaminoAdiestramiento} options={{ headerShown: true }}/>
         <Stack.Screen name="Mapa" component={Mapa} options={{ headerShown: true }}/>
         <Stack.Screen name="Cartilla" component={Cartilla} options={{ headerShown:false }}/>
         <Stack.Screen name="Chatbot" component={Chatbot} options={{ headerShown: false }}/>
         <Stack.Screen name="MascotaCard" component={MascotaCard} options={{headerShown:false}}/>
-
-        <Stack.Screen name="Basico" component={Basico} options={{ headerShown: false }}/>
-        <Stack.Screen name="Avanzado" component={Avanzado} options={{ headerShown: false }}/>
-        <Stack.Screen name="Conducta" component={Conducta} options={{ headerShown: false }}/>
-        <Stack.Screen name="Deportivo" component={Deportivo} options={{ headerShown: false }}/>
-        <Stack.Screen name="Cachorros" component={Cachorros} options={{ headerShown: false }}/>
-
-
-
+        <Stack.Screen name="Citas" component={Citas} options={{headerShown:false}}/>
 
 
       </Stack.Navigator>

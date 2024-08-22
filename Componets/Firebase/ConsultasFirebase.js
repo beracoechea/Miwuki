@@ -1,6 +1,6 @@
 // ConsultasFirebase.js
 
-import { getFirestore, doc, getDoc, updateDoc,getDocs,collection,query,onSnapshot } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, updateDoc,getDocs,collection,query,onSnapshot, addDoc,deleteDoc } from 'firebase/firestore';
 import appFirebase from '../Firebase/credenciales';
 
 const firestore = getFirestore(appFirebase);
@@ -10,6 +10,49 @@ export async function guardarUsuario({ nombre, apellidos, telefono, email }) {
     await updateDoc(doc(firestore, 'Usuarios', email), { nombre, apellidos, telefono });
   } catch (error) {
     throw error; // Propagamos el error para manejarlo en el componente que llama a esta función
+  }
+}
+
+// Nuevo método para eliminar la cita
+
+export const eliminarCita = async (emailUsuario, citaId) => { // Agrega emailUsuario como parámetro
+  try {
+    const citaDoc = doc(firestore, 'Usuarios', emailUsuario, 'Citas', citaId);
+    const docSnapshot = await getDoc(citaDoc);
+
+    if (!docSnapshot.exists()) {
+      console.log('El documento no existe, no se puede eliminar.');
+      return;
+    }
+
+    await deleteDoc(citaDoc);
+    console.log('Cita eliminada de Firebase');
+  } catch (error) {
+    console.error('Error al eliminar la cita en Firebase:', error);
+    throw error; // Manejo del error según sea necesario
+  }
+};
+
+
+
+export const suscribirACambiosCitas = (emailUsuario, callback) => {
+  const citasRef = collection(firestore, 'Usuarios', emailUsuario, 'Citas');
+  const q = query(citasRef);
+
+  return onSnapshot(q, (snapshot) => {
+    snapshot.docChanges().forEach((change) => {
+      if (change.type === 'added' || change.type === 'modified' || change.type === 'removed') {
+        callback(change);
+      }
+    });
+  });
+};
+export async function guardarCita(emailUsuario, cita) {
+  try {
+    const citasRef = collection(firestore, 'Usuarios', emailUsuario, 'Citas');
+    await addDoc(citasRef, cita);
+  } catch (error) {
+    throw error;
   }
 }
 
@@ -149,5 +192,6 @@ export const suscribirACambiosOperaciones = (emailUsuario, mascotaId, callback) 
     });
   });
 };
+
 
 // Puedes definir otras funciones de Firebase que necesites aquí

@@ -7,6 +7,7 @@ const firestore = getFirestore(appFirebase);
 const auth = getAuth(appFirebase); // Obtén el servicio de autenticación
 
 
+
 export const registrarVacuna = async ({ email, mascotaId, nombre, dosis }) => {
   try {
     // Referencia al documento de la mascota dentro de la colección del usuario

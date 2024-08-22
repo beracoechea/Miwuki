@@ -1,6 +1,7 @@
 import { FIREBASE_DB } from './credenciales'; // Ajusta la ruta según la estructura de tu proyecto
 import { doc, updateDoc } from 'firebase/firestore';
 
+
 export const editarDatosUsuario = async (email, newData) => {
   try {
     const userDoc = doc(FIREBASE_DB, 'Usuarios', email);
@@ -22,3 +23,6 @@ export const actualizarDatosMascota = async (email, mascotaId, newData) => {
     throw error; // Puedes manejar este error según tu aplicación (mostrar alertas, etc.)
   }
 };
+
+
+

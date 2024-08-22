@@ -4,8 +4,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import Inicio from '../Inicio/Inicio';
 import Chatbot from '../../Componets/ChatBot/Chatbot';
-import CaminoAdiestramiento from '../../CaminoAdiestramiento';
-import Mapa from '../../Mapa';
+import Mapa from '../Maps/Mapa';
+import Citas from '../Citas/Citas';
+
 const Tab = createBottomTabNavigator();
 
 export default class Menu extends Component {
@@ -30,9 +31,9 @@ export default class Menu extends Component {
               iconName = focused ? 'home' : 'home-outline';
             } else if (route.name === 'Chatbot') {
               iconName = focused ? 'robot' : 'robot-outline';
-            } else if (route.name === 'CaminoAdiestramiento') {
-              iconName = focused ? 'tennis-ball' : 'tennis-ball';
-            } else if (route.name === 'Mapa') {
+            } else if (route.name === 'Citas') {
+              iconName = focused ? 'ballot' : 'ballot-outline';
+            }  else if (route.name === 'Mapa') {
               iconName = focused ? 'google-maps' : 'google-maps';
             }
 
@@ -70,13 +71,15 @@ export default class Menu extends Component {
           }}
         />
         <Tab.Screen
-          name="CaminoAdiestramiento"
-          component={CaminoAdiestramiento}
+          name="Citas"
+          initialParams={{ email}}
           options={{
-            tabBarLabel: 'Adiestramiento',
+            tabBarLabel: 'Citas ' ,
             headerShown: false,
           }}
-        />
+        >
+          {(props) => <Citas {...props} email={email} />}
+        </Tab.Screen>
         <Tab.Screen
           name="Mapa"
           component={Mapa}

@@ -4,12 +4,9 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
 import avatarMapPerros from '../TiposMascotas/ImagenesPerros'; 
-import avatarMapGatos from '../TiposMascotas/ImagenesGatos';  
-import avatarMapAves from '../TiposMascotas/ImagenesAves';
-import avatarMapMamiferos from '../TiposMascotas/ImagenesMamiferos';
 import { guardarMascota } from '../Firebase/RegistroFirebase';
-import { Picker } from '@react-native-picker/picker';
 import Alerts, { ALERT_TYPES } from '../Alerts/Alerts';
+import { Picker } from '@react-native-picker/picker';
 
 const PerfilPerruno = ({ route }) => {
   const navigation = useNavigation();
@@ -17,7 +14,6 @@ const PerfilPerruno = ({ route }) => {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [avatar, setAvatar] = useState(require('../../images/Avatars/Aleatorio.jpg'));
-  const [tipoMascota, setTipoMascota] = useState('Perro');
   const [nombreMascota, setNombreMascota] = useState('');
   const [pesoMascota, setPesoMascota] = useState('');
   const [edadMascota, setEdadMascota] = useState('');
@@ -25,10 +21,10 @@ const PerfilPerruno = ({ route }) => {
   const [selectedAvatarName, setSelectedAvatarName] = useState('Aleatorio.jpg');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [generoMascota, setGeneroMascota] = useState('');
-  const [tamañoEstatura, setTamañoEstatura] = useState('mediana'); // Ahora es una cadena
+  const [tamañoEstatura, setTamañoEstatura] = useState('mediana');
   const [saveButtonDisabled, setSaveButtonDisabled] = useState(true);
   const [selectedGender, setSelectedGender] = useState(null);
-
+  
   const [alertType, setAlertType] = useState(null);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertVisible, setAlertVisible] = useState(false);
@@ -57,8 +53,7 @@ const PerfilPerruno = ({ route }) => {
   }
 
   const handleAvatarPress = (avatarName) => {
-    const avatarMap = getAvatarMap(tipoMascota);
-    setAvatar(avatarMap[avatarName]);
+    setAvatar(avatarMapPerros[avatarName]);
     setSelectedAvatarName(avatarName);
     setModalVisible(false);
   };
@@ -71,18 +66,17 @@ const PerfilPerruno = ({ route }) => {
 
       await guardarMascota({
         email,
-        tipoMascota,
+        tipoMascota: 'Perro',
         nombreMascota,
         pesoMascota: parseInt(pesoMascota),
         edadMascota: parseInt(edadMascota),
         razaMascota,
         avatar: selectedAvatarName,
         sexo: generoMascota,
-        tamaño: tamañoEstatura, // Ahora se envía como cadena
+        tamaño: tamañoEstatura,
       });
 
       navigation.navigate('Menu', { email });
-
     } catch (error) {
       console.error('Error al guardar los datos de la mascota:', error);
       setAlertType(ALERT_TYPES.ERROR);
@@ -94,29 +88,6 @@ const PerfilPerruno = ({ route }) => {
   const handleGenderButtonPress = (gender) => {
     setSelectedGender(gender);
     setGeneroMascota(gender);
-  };
-
-  const handleTipoMascotaChange = (itemValue) => {
-    setTipoMascota(itemValue);
-    const avatarMap = getAvatarMap(itemValue);
-    setAvatar(avatarMap['Aleatorio.jpg']);
-    setSelectedAvatarName('Aleatorio.jpg');
-    setTamañoEstatura('mediana'); // Resetear el tamaño de estatura cuando cambia el tipo de mascota
-  };
-
-  const getAvatarMap = (tipo) => {
-    switch (tipo) {
-      case 'Perro':
-        return avatarMapPerros;
-      case 'Gato':
-        return avatarMapGatos;
-      case 'Ave':
-        return avatarMapAves;
-      case 'Mamifero':
-        return avatarMapMamiferos;
-      default:
-        return {};
-    }
   };
 
   return (
@@ -134,19 +105,6 @@ const PerfilPerruno = ({ route }) => {
           </TouchableOpacity>
         </View>
         <View style={[styles.infoContainer, keyboardVisible && styles.infoContainerKeyboardVisible]}>
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={tipoMascota}
-              style={[styles.input, keyboardVisible && styles.inputFocused]}
-              onValueChange={(itemValue) => handleTipoMascotaChange(itemValue)}
-              mode="dropdown"
-            >
-              <Picker.Item label="Perro" value="Perro" />
-              <Picker.Item label="Gato" value="Gato" />
-              <Picker.Item label="Mamifero" value="Mamifero" />
-              <Picker.Item label="Ave" value="Ave" />
-            </Picker>
-          </View>
           <TextInput
             style={[styles.input, keyboardVisible && styles.inputFocused]}
             placeholder="Nombre de la mascota"
@@ -173,18 +131,16 @@ const PerfilPerruno = ({ route }) => {
             value={razaMascota}
             onChangeText={setRazaMascota}
           />
-          {(tipoMascota === 'Perro' || tipoMascota === 'Gato') && (
-            <Picker
-              selectedValue={tamañoEstatura}
-              style={[styles.input, keyboardVisible && styles.inputFocused]}
-              onValueChange={(itemValue) => setTamañoEstatura(itemValue)}
-              mode="dropdown"
-            >
-              <Picker.Item label="Pequeña" value="pequeña" />
-              <Picker.Item label="Mediana" value="mediana" />
-              <Picker.Item label="Grande" value="grande" />
-            </Picker>
-          )}
+          <Picker
+            selectedValue={tamañoEstatura}
+            style={[styles.input, keyboardVisible && styles.inputFocused]}
+            onValueChange={(itemValue) => setTamañoEstatura(itemValue)}
+            mode="dropdown"
+          >
+            <Picker.Item label="Pequeña" value="pequeña" />
+            <Picker.Item label="Mediana" value="mediana" />
+            <Picker.Item label="Grande" value="grande" />
+          </Picker>
           <View style={styles.genderContainer}>
             <TouchableOpacity onPress={() => handleGenderButtonPress('masculino')}>
               <MaterialCommunityIcons
@@ -220,9 +176,9 @@ const PerfilPerruno = ({ route }) => {
       >
         <View style={styles.modalBackground}>
           <ScrollView contentContainerStyle={styles.modalContainer} horizontal>
-            {Object.keys(getAvatarMap(tipoMascota)).map((avatarName, index) => (
+            {Object.keys(avatarMapPerros).map((avatarName, index) => (
               <TouchableOpacity key={index} onPress={() => handleAvatarPress(avatarName)}>
-                <Image source={getAvatarMap(tipoMascota)[avatarName]} style={styles.avatarOption} />
+                <Image source={avatarMapPerros[avatarName]} style={styles.avatarOption} />
               </TouchableOpacity>
             ))}
           </ScrollView>

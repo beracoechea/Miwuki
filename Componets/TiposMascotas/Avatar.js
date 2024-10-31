@@ -2,29 +2,15 @@ import React from 'react';
 import { View, Image, StyleSheet } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import avatarMapPerros from './ImagenesPerros';
-import avatarMapGatos from './ImagenesGatos';
-import avatarMapAves from './ImagenesAves';
-import avatarMapMamiferos from './ImagenesMamiferos';
 
 const Avatar = ({ datosMascota }) => {
-  const getAvatar = (tipoMascota, avatarFileName) => {
-    switch (tipoMascota) {
-      case 'Perro':
-        return avatarMapPerros[avatarFileName];
-      case 'Gato':
-        return avatarMapGatos[avatarFileName];
-      case 'Ave':
-        return avatarMapAves[avatarFileName];
-      case 'Mamifero':
-        return avatarMapMamiferos[avatarFileName];
-      default:
-        return null;
-    }
+  const getAvatar = (avatarFileName) => {
+    return avatarMapPerros[avatarFileName];
   };
 
   return (
     <View style={styles.avatarContainer}>
-      <Image source={getAvatar(datosMascota.tipoMascota, datosMascota.avatar)} style={styles.avatar} />
+      <Image source={getAvatar(datosMascota.avatar)} style={styles.avatar} />
       <FontAwesome
         name={datosMascota.sexo === 'masculino' ? 'mars' : 'venus'}
         size={30}

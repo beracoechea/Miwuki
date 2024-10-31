@@ -7,9 +7,6 @@ import AsyncStorageManager from '../../AsyncStorage/AsyncStorageManager';
 import LoadingModal from '../../Screens/LoadingModal';
 
 import avatarMapPerros from '../../TiposMascotas/ImagenesPerros';
-import avatarMapGatos from '../../TiposMascotas/ImagenesGatos';
-import avatarMapAves from '../../TiposMascotas/ImagenesAves';
-import avatarMapMamiferos from '../../TiposMascotas/ImagenesMamiferos';
 
 export default class ModalPet extends Component {
   state = {
@@ -20,7 +17,7 @@ export default class ModalPet extends Component {
     alertType: '',
     alertMessage: '',
     ultimaMascotaRegistrada: '',
-    usuarioId: '', // asegúrate de inicializar usuarioId si lo estás utilizando directamente
+    usuarioId: '',
   };
 
   componentDidMount() {
@@ -64,13 +61,13 @@ export default class ModalPet extends Component {
 
   handleMascotaChange = async (change) => {
     const { usuarioId, mascotas } = this.state;
-  
+
     switch (change.type) {
       case 'added':
         if (!mascotas.some(mascota => mascota.id === change.doc.id)) {
           const nuevaMascota = { id: change.doc.id, ...change.doc.data() };
-          const nuevasMascotas = [...mascotas, nuevaMascota]; // Crear un nuevo array con la nueva mascota
-          await AsyncStorageManager.setMascotas(usuarioId, nuevasMascotas); // Guardar en AsyncStorage antes de actualizar el estado
+          const nuevasMascotas = [...mascotas, nuevaMascota];
+          await AsyncStorageManager.setMascotas(usuarioId, nuevasMascotas);
           this.setState(prevState => ({
             mascotas: nuevasMascotas,
             ultimaMascotaRegistrada: nuevaMascota.nombreMascota,
@@ -80,17 +77,17 @@ export default class ModalPet extends Component {
       case 'modified':
         const modifiedIndex = mascotas.findIndex((mascota) => mascota.id === change.doc.id);
         if (modifiedIndex !== -1) {
-          const nuevasMascotas = [...mascotas]; // Crear un nuevo array para modificar la mascota
+          const nuevasMascotas = [...mascotas];
           nuevasMascotas[modifiedIndex] = { id: change.doc.id, ...change.doc.data() };
-          await AsyncStorageManager.setMascotas(usuarioId, nuevasMascotas); // Guardar en AsyncStorage antes de actualizar el estado
+          await AsyncStorageManager.setMascotas(usuarioId, nuevasMascotas);
           this.setState({ mascotas: nuevasMascotas });
         }
         break;
       case 'removed':
         const removedIndex = mascotas.findIndex((mascota) => mascota.id === change.doc.id);
         if (removedIndex !== -1) {
-          const nuevasMascotas = mascotas.filter((_, index) => index !== removedIndex); // Filtrar la mascota removida
-          await AsyncStorageManager.setMascotas(usuarioId, nuevasMascotas); // Guardar en AsyncStorage antes de actualizar el estado
+          const nuevasMascotas = mascotas.filter((_, index) => index !== removedIndex);
+          await AsyncStorageManager.setMascotas(usuarioId, nuevasMascotas);
           this.setState({ mascotas: nuevasMascotas });
         }
         break;
@@ -98,7 +95,6 @@ export default class ModalPet extends Component {
         break;
     }
   };
-  
 
   showAlert = (type, message) => {
     this.setState({
@@ -111,32 +107,13 @@ export default class ModalPet extends Component {
   handleAvatarPress = () => {
     const { navigation, email } = this.props;
     navigation.navigate('PerfilMascotas', { email });
-      this.props.onClose();
-   
+    this.props.onClose();
   };
 
   handleAvatarCard = (mascotaId) => {
-    const { navigation, email  } = this.props;
-    navigation.navigate('MascotaCard', { mascotaId ,email});
+    const { navigation, email } = this.props;
+    navigation.navigate('MascotaCard', { mascotaId, email });
     this.props.onClose();
-  };
-  
-  
-  
-
-  getAvatarMap = (tipoMascota) => {
-    switch (tipoMascota) {
-      case 'Perro':
-        return avatarMapPerros;
-      case 'Gato':
-        return avatarMapGatos;
-      case 'Ave':
-        return avatarMapAves;
-      case 'Mamifero':
-        return avatarMapMamiferos;
-      default:
-        return {};
-    }
   };
 
   render() {
@@ -152,16 +129,12 @@ export default class ModalPet extends Component {
             </TouchableOpacity>
           </View>
           <ScrollView contentContainerStyle={styles.scrollContainer} horizontal showsHorizontalScrollIndicator={false}>
-            {mascotas.map((mascota) => {
-              const avatarMap = this.getAvatarMap(mascota.tipoMascota);
-              return (
-                <TouchableOpacity key={mascota.id} style={styles.card} onPress={() => this.handleAvatarCard(mascota.id)}>
-                <Image source={avatarMap[mascota.avatar]} style={styles.avatar} />
+            {mascotas.map((mascota) => (
+              <TouchableOpacity key={mascota.id} style={styles.card} onPress={() => this.handleAvatarCard(mascota.id)}>
+                <Image source={avatarMapPerros[mascota.avatar]} style={styles.avatar} />
                 <Text style={styles.cardText}>{mascota.nombreMascota} </Text>
               </TouchableOpacity>
-              
-              );
-            })}
+            ))}
             <TouchableOpacity style={styles.addButton} onPress={this.handleAvatarPress}>
               <MaterialIcons name="add-circle-outline" size={50} color="#007bff" />
             </TouchableOpacity>

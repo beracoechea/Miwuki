@@ -6,15 +6,15 @@ const Msg = ({ incomingMsg, sentMsg, msg }) => {
     <>
       {/* Incoming msg */}
       {incomingMsg && (
-        <View style={[styles.msgBox, styles.incomingMsgBox]}>
-          <Text style={styles.msgText}>{msg}</Text>
+        <View style={[styles.msgBox, styles.incomingMsgBox]} >
+          <Text style={styles.msgText} >{msg}</Text>
         </View>
       )}
 
       {/* Sent msg */}
       {sentMsg && (
         <View style={[styles.msgBox, styles.sentMsgBox]}>
-          <Text style={styles.msgText}>{msg}</Text>
+          <Text style={styles.msgText}>{msg}     </Text>
         </View>
       )}
     </>

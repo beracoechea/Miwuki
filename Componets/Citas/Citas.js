@@ -74,7 +74,7 @@ export default class Citas extends Component {
         nuevaCita: { fecha: '', hora: '', veterinariaId: '', motivo: '', estado: 'pendiente' },
       });
     } catch (error) {
-      console.error('Error al guardar la cita:', error);
+      
     }
   }
 

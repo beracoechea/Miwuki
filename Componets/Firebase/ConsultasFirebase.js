@@ -26,9 +26,7 @@ export const eliminarCita = async (emailUsuario, citaId) => { // Agrega emailUsu
     }
 
     await deleteDoc(citaDoc);
-    console.log('Cita eliminada de Firebase');
   } catch (error) {
-    console.error('Error al eliminar la cita en Firebase:', error);
     throw error; // Manejo del error según sea necesario
   }
 };
@@ -194,4 +192,3 @@ export const suscribirACambiosOperaciones = (emailUsuario, mascotaId, callback) 
 };
 
 
-// Puedes definir otras funciones de Firebase que necesites aquí

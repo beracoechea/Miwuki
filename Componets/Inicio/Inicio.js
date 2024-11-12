@@ -138,7 +138,6 @@ export default class Inicio extends Component {
             <View style={styles.headerContent}>
               <Text style={styles.headerText}>{user.nombre}</Text>
               <Text style={styles.headerText}>{user.apellidos}</Text>
-              <Text style={styles.subheaderText}>Email: {user.email}</Text>
               <Text style={styles.subheaderText}>Teléfono: {user.telefono}</Text>
             </View>
             <View style={styles.headerButtons}>

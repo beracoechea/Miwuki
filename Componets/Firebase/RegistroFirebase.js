@@ -26,9 +26,7 @@ export const registrarVacuna = async ({ email, mascotaId, nombre, dosis }) => {
       dosis,
     });
 
-    console.log('Vacuna registrada exitosamente en Firestore');
   } catch (error) {
-    console.error('Error al registrar la vacuna en Firestore:', error);
     throw error;
   }
 };
@@ -52,9 +50,7 @@ export const registrarOperacion = async ({ email, mascotaId, fecha, detalles, tr
       fechaRegistro: new Date().toISOString(), // Fecha de registro para la operación
     });
 
-    console.log('Operación registrada exitosamente en Firestore');
   } catch (error) {
-    console.error('Error al registrar la operación en Firestore:', error);
     throw error;
   }
 };
@@ -80,9 +76,7 @@ export const guardarMascota = async ({ email, tipoMascota, nombreMascota, pesoMa
       tamaño,
     });
 
-    console.log('Datos de la mascota guardados exitosamente en Firestore');
   } catch (error) {
-    console.error('Error al guardar los datos de la mascota:', error);
     throw error;
   }
 };
@@ -106,9 +100,9 @@ export const guardarUsuario = async ({ nombre, apellidos, telefono, email }) => 
       fechaCreacion: new Date().toISOString(),
     });
 
-    console.log('Usuario registrado exitosamente en Firestore');
+    
   } catch (error) {
-    console.error('Error al guardar los datos del usuario:', error);
+   
     throw error;
   }
 };
@@ -117,10 +111,8 @@ export const guardarUsuario = async ({ nombre, apellidos, telefono, email }) => 
 export const iniciarSesion = async ({ email, password }) => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    console.log('Inicio de sesión exitoso');
     return userCredential.user;
   } catch (error) {
-    console.error('Error al iniciar sesión:', error);
     throw error;
   }
 };

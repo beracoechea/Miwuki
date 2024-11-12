@@ -58,7 +58,7 @@ const Chatbot = () => {
     if (bestMatch) {
       chats = [...chats, { msg: bestMatch, incomingMsg: true }];
     } else {
-      chats = [...chats, { msg: 'Esta respuesta no está disponible', incomingMsg: true }];
+      chats = [...chats, { msg: 'Esta respuesta no está disponible ', incomingMsg: true }];
     }
 
     setChatList([...chats].reverse());
@@ -79,12 +79,12 @@ const Chatbot = () => {
         style={{ height: '87%', bottomm: '3%' }}
         data={chatList}
         inverted={true}
-        keyExtractor={(_, index) => index.toString()}
+        keyExtractor={(_, index) => index.toString()  }
         renderItem={({ item }) => (
           <Msg
-            incomingMsg={item.incomingMsg}
-            msg={item.msg}
-            sentMsg={item.sentMsg}
+            incomingMsg={item.incomingMsg}   
+            msg={item.msg    }
+            sentMsg={item.sentMsg  } 
           />
         )}
       />
@@ -94,7 +94,7 @@ const Chatbot = () => {
           style={styles.typeMsgBox}
           value={msg}
           placeholder="Type Here ..."
-          onChangeText={val => setMsg(val)}
+          onChangeText={val => setMsg(val)  }
         />
         <TouchableOpacity
           style={[styles.sendBtn, { backgroundColor: msg ? '#66280a' : 'grey' }]}

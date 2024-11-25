@@ -46,8 +46,10 @@ class Carga extends Component {
   };
 
   navigateToNextScreen = () => {
-    // Determina a qué pantalla navegar, por ejemplo, 'Registro'
-    this.props.navigation.navigate('Registro');
+    this.props.navigation.reset({
+      index: 0, // El índice de la nueva pantalla en la pila
+      routes: [{ name: 'Registro' }], // Reemplaza la pila con la pantalla 'Registro'
+    });
   };
 
   render() {

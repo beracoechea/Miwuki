@@ -48,10 +48,10 @@ export default function UserRegistrationForm({ route }) {
         alertMessage = 'Información guardada exitosamente.     ';
         alertType = ALERT_TYPES.EXIT;
 
-        setTimeout(() => {
-          navigation.navigate('PerfilMascotas', { email }); // Redirigir a PerfilMascotas después de 2 segundos
-        }, 2000);
-
+        navigation.reset({
+          index: 0, // Índice inicial de la nueva pila
+          routes: [{ name: 'PerfilMascotas', params: { email } }], // Nueva pila con la pantalla destino
+        });
       } catch (error) {
         alertMessage = 'Error al guardar los datos del usuario. Por favor, inténtalo de nuevo más tarde.';
         alertType = ALERT_TYPES.ERROR;

@@ -75,8 +75,17 @@ const PerfilPerruno = ({ route }) => {
         sexo: generoMascota,
         tamaño: tamañoEstatura,
       });
+      setNombreMascota('');
+      setPesoMascota('');
+      setEdadMascota('');
+      setRazaMascota('');
+      setAvatar(require('../../images/Avatars/Aleatorio.jpg')); // Restablecer avatar a su valor inicial
+      setSelectedAvatarName('Aleatorio.jpg');
+      setGeneroMascota('');
+      setTamañoEstatura('mediana');
+      setSelectedGender(null);
 
-      navigation.navigate('Menu', { email });
+       navigation.navigate('Menu', { email });
     } catch (error) {
       console.error('Error al guardar los datos de la mascota:', error);
       setAlertType(ALERT_TYPES.ERROR);
@@ -89,6 +98,13 @@ const PerfilPerruno = ({ route }) => {
     setSelectedGender(gender);
     setGeneroMascota(gender);
   };
+
+  const handleCancelButtonPress = async () => {
+    navigation.navigate('Menu', { email });
+
+
+  }
+  
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -162,8 +178,15 @@ const PerfilPerruno = ({ route }) => {
             onPress={handleSaveButtonPress}
             disabled={saveButtonDisabled}
           >
-            <Text style={styles.saveButtonText}>Guardar</Text>
+            <Text style={styles.saveButtonText}>Guardar </Text>
           </TouchableOpacity>
+
+          <TouchableOpacity 
+          style={[styles.cancelButton]}
+          onPress={handleCancelButtonPress}
+          >
+          <Text style={styles.saveButtonText}>Cancelar </Text>
+           </TouchableOpacity>
         </View>
       </View>
       <Modal
@@ -298,4 +321,14 @@ const styles = StyleSheet.create({
   saveButtonDisabled: {
     backgroundColor: '#ccc',
   },
+
+  cancelButton:{
+    backgroundColor: '#FF0C00',
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    borderRadius: 50,
+    marginTop: 3,
+    alignItems: 'center',
+
+  }
 });

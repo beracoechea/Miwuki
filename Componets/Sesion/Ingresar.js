@@ -38,8 +38,10 @@ export default function Signup() {
       // Intenta iniciar sesión con las credenciales proporcionadas
       await loginWithEmailAndPassword(email, password);
 
-      // Si la autenticación es exitosa, navega a la pantalla de inicio
-      navigation.navigate('Menu', { email: email });
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Menu', params: { email } }],
+      })
     } catch (error) {
       // Si hay algún error durante la autenticación, muestra un mensaje de error
       if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {

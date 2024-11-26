@@ -4,7 +4,6 @@ import { Text, TouchableOpacity, View, TextInput, StyleSheet } from 'react-nativ
 import { useNavigation } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-
 import Alerts, { ALERT_TYPES } from '../Alerts/Alerts'; // Ajusta la ruta según sea necesario
 import { registerWithEmailAndPassword } from '../Firebase/Authfirebase'; // Importamos las funciones de Firebase
 
@@ -49,7 +48,10 @@ export default function Signup() {
 
     try {
       await registerWithEmailAndPassword(email, password);
-      navigation.navigate('PerfilUsuario', { email: email });
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'PerfilUsuario', params: { email } }],
+      });
     } catch (error) {
       if (error.code === 'auth/email-already-in-use') {
         setAlert({ type: ALERT_TYPES.WARNING, message: 'Este correo electrónico ya está registrado. Por favor, inicie sesión o utilice otro correo electrónico.' });

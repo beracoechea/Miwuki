@@ -56,7 +56,7 @@ export const registrarOperacion = async ({ email, mascotaId, fecha, detalles, tr
 };
 
 
-export const guardarMascota = async ({ email, tipoMascota, nombreMascota, pesoMascota, edadMascota, razaMascota, avatar, sexo, tamaño }) => {
+export const guardarMascota = async ({ email, nombreMascota, pesoMascota, edadMascota, razaMascota, avatar, sexo, tamaño }) => {
   try {
     // Obtener referencia al documento del usuario
     const usuarioRef = doc(firestore, 'Usuarios', email);
@@ -66,7 +66,6 @@ export const guardarMascota = async ({ email, tipoMascota, nombreMascota, pesoMa
 
     // Guardar los datos de la mascota en Firestore
     await setDoc(mascotaRef, {
-      tipoMascota,
       nombreMascota,
       pesoMascota,
       edadMascota,

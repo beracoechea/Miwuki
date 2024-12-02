@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView,Image } from 'react-native';
 import { obtenerDatosMascotaPorId } from '../../Firebase/ConsultasFirebase';
 import LoadingModal from '../../Screens/LoadingModal';
 import ModalEditMascota from '../Modals/ModalEditMascota';
 import LinearGradient from 'react-native-linear-gradient'; 
-import Avatar from '../../TiposMascotas/Avatar';
+import avatarMapPerros from '../../TiposMascotas/ImagenesPerros'; // Asegúrate de importar correctamente
 import Buttons from './Buttons';
 import Statistics from './Statistics';
 
 import { useNavigation } from '@react-navigation/native';
-
 
 const MascotaCard = ({ route }) => {
   const { mascotaId, email } = route.params;
@@ -78,12 +77,16 @@ const MascotaCard = ({ route }) => {
     );
   }
 
+  // Asegúrate de que la mascota tiene un avatar válido, si no, usa una imagen predeterminada
+  const avatarSource = avatarMapPerros[datosMascota.avatar] ? avatarMapPerros[datosMascota.avatar].image : require('../../../images/Avatars/Aleatorio.jpg');
+
   return (
     <LinearGradient colors={['#8B4513', '#FFFFFF', '#ADD8E6']} style={styles.container}>
       <ScrollView contentContainerStyle={styles.cardContainer}>
         <View style={styles.card}>
           <View style={styles.cardContent}>
-            <Avatar datosMascota={datosMascota} />
+            {/* Usamos el avatar correctamente con la imagen de la mascota */}
+            <Image source={avatarSource} style={styles.avatar} />
             <View style={styles.infoContainer}>
               <Text style={styles.nameText}>{datosMascota.nombreMascota} </Text>
 
@@ -173,6 +176,12 @@ const styles = StyleSheet.create({
   text: {
     color: '#000',
     marginLeft: 5,
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 10,
   },
 });
 

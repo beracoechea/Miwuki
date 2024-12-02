@@ -129,12 +129,17 @@ export default class ModalPet extends Component {
             </TouchableOpacity>
           </View>
           <ScrollView contentContainerStyle={styles.scrollContainer} horizontal showsHorizontalScrollIndicator={false}>
-            {mascotas.map((mascota) => (
-              <TouchableOpacity key={mascota.id} style={styles.card} onPress={() => this.handleAvatarCard(mascota.id)}>
-                <Image source={avatarMapPerros[mascota.avatar]} style={styles.avatar} />
-                <Text style={styles.cardText}>{mascota.nombreMascota} </Text>
-              </TouchableOpacity>
-            ))}
+            {mascotas.map((mascota) => {
+              // Si no se encuentra un avatar válido, asigna una imagen predeterminada
+              const avatarSource = avatarMapPerros[mascota.avatar] ? avatarMapPerros[mascota.avatar].image : require('../../../images/Avatars/Aleatorio.jpg');
+
+              return (
+                <TouchableOpacity key={mascota.id} style={styles.card} onPress={() => this.handleAvatarCard(mascota.id)}>
+                  <Image source={avatarSource} style={styles.avatar} />
+                  <Text style={styles.cardText}>{mascota.nombreMascota } </Text>
+                </TouchableOpacity>
+              );
+            })}
             <TouchableOpacity style={styles.addButton} onPress={this.handleAvatarPress}>
               <MaterialIcons name="add-circle-outline" size={50} color="#007bff" />
             </TouchableOpacity>

@@ -140,7 +140,7 @@ export async function obtenerVacunasMascota(emailUsuario, mascotaId) {
 
     return vacunas;
   } catch (error) {
-    throw error; // Propaga el error para manejarlo en el componente que llama a esta función
+    throw error;
   }
 }
 

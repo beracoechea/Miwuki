@@ -1,5 +1,5 @@
 import { getFirestore, doc, setDoc, collection } from 'firebase/firestore';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'; // Importa los métodos necesarios de auth
+import { getAuth } from 'firebase/auth'; // Importa los métodos necesarios de auth
 import appFirebase from './credenciales';
 
 
@@ -89,8 +89,6 @@ export const guardarUsuario = async ({ nombre, apellidos, telefono, email }) => 
     if (!user) {
       throw new Error('Usuario no autenticado. Por favor, inicia sesión.');
     }
-
-    // Guardar los datos del usuario en Firestore
     await setDoc(doc(firestore, 'Usuarios', email), {
       nombre,
       apellidos,
@@ -102,16 +100,6 @@ export const guardarUsuario = async ({ nombre, apellidos, telefono, email }) => 
     
   } catch (error) {
    
-    throw error;
-  }
-};
-
-// Función para iniciar sesión (si es necesario)
-export const iniciarSesion = async ({ email, password }) => {
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    return userCredential.user;
-  } catch (error) {
     throw error;
   }
 };
